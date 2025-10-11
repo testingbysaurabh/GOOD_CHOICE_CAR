@@ -1,10 +1,16 @@
 import axios from 'axios'
 import React, { useState } from 'react'
 import toast from 'react-hot-toast'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { addUserData } from '../utils/store/UserSlice'
+
 
 const AdminLogin = () => {
     const [mail, setMail] = useState("saurabhsingh1x@gmail.com")
     const [password, setPassword] = useState("Password@123")
+    const nav = useNavigate()
+    const dispatch = useDispatch()
 
     function LoginBtnHandler() {
         async function Login() {
@@ -13,14 +19,20 @@ const AdminLogin = () => {
                     toast.error("Enter all fields")
                     return
                 }
+                const payload = mail.includes("@") ? { mail: mail, password } : { phone: mail, password }
+
                 const res = await axios.post(
                     import.meta.env.VITE_DOMAIN + '/api/admin/login',
-                    { mail, password },
+                    payload,
                     { withCredentials: true }
                 )
                 toast.success("Login Successful ✅")
-                console.log(res)
+                dispatch(addUserData(res.data.data))
+                nav("/adminPanel")
+                // console.log(res)
             } catch (error) {
+                setMail("")
+                setPassword("")
                 toast.error("Login Failed ❌ " + error.response.data.error)
             }
         }
@@ -30,6 +42,7 @@ const AdminLogin = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: "#222831" }}>
+            
             <div
                 className="w-[90%] max-w-md p-8 rounded-2xl shadow-2xl"
                 style={{ backgroundColor: "#393E46" }}
@@ -92,10 +105,10 @@ const AdminLogin = () => {
                     Login
                 </button>
                 <div className="flex justify-between mt-4 text-sm">
-                    <span className="cursor-pointer hover:underline" style={{ color: "#DFD0B8" }}>
-                        Don’t have an account? <span className='text-blue-400'>Sign up</span>
+                    <span className="cursor-pointer " style={{ color: "#DFD0B8" }}>
+                        Don’t have an account? <span onClick={() => nav("/adminSignUp")} className='text-blue-400 hover:underline'>Sign up</span>
                     </span>
-                    <span className="cursor-pointer hover:underline" style={{ color: "#948979" }}>
+                    <span onClick={() => nav("/adminForgetPassword")} className="cursor-pointer hover:underline" style={{ color: "#948979" }}>
                         Forgot password?
                     </span>
                 </div>

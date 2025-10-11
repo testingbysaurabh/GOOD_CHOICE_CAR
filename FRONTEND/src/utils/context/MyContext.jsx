@@ -5,12 +5,16 @@ export const GlobalContext = createContext()
 
 
 export const MyContext = ({ children }) => {
-    const [extraSpace, setExtraSpace] = useState("")
+    const [ui, setUi] = useState(0)
+    const [mail, setMail] = useState("")
+    const [isLoading, setIsLoading] = useState(false);
 
     return (
         <GlobalContext.Provider value={
             {
-                extraSpace, setExtraSpace
+                ui, setUi,
+                mail, setMail,
+                isLoading, setIsLoading
 
             }
         }>
