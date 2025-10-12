@@ -3,7 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import AdminLogin from "./components/AdminLogin"
 import { Route, Routes } from 'react-router-dom'
 import AdminPanel from './components/AdminPanel';
-import AdminForgetPass from './components/AdminForgetPass'; 
+import { AdminForgetPass } from './components/AdminForgetPass';
 import AdminSignUp from './components/AdminSignUp';
 
 const App = () => {

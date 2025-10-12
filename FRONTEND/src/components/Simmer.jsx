@@ -22,9 +22,6 @@ export const SendOtpSkeleton = () => {
 
 
 
-
-
-
 export const VerifyOtpSkeleton = () => {
     return (
         <div className="text-center space-y-6">
@@ -39,8 +36,6 @@ export const VerifyOtpSkeleton = () => {
         </div>
     );
 };
-
-
 
 
 
@@ -68,6 +63,31 @@ export const SignupSkeleton = () => {
     );
 };
 
+
+
+
+export const PasswordChangeSkeleton = () => {
+  return (
+    <div className="space-y-6 text-center animate-pulse">
+      {/* Heading skeleton */}
+      <div className="h-8 w-1/2 mx-auto rounded-lg" style={{ backgroundColor: "#94897940" }}></div>
+
+      {/* Input skeletons */}
+      <div className="space-y-3">
+        <div className="h-12 w-full rounded-xl" style={{ backgroundColor: "#94897930" }}></div>
+        <div className="h-12 w-full rounded-xl" style={{ backgroundColor: "#94897930" }}></div>
+        <div className="h-12 w-full rounded-xl" style={{ backgroundColor: "#94897930" }}></div>
+        <div className="h-12 w-full rounded-xl" style={{ backgroundColor: "#94897930" }}></div>
+      </div>
+
+      {/* Button skeleton */}
+      <div className="flex flex-col gap-3 mt-4">
+        <div className="h-12 w-full rounded-xl" style={{ backgroundColor: "#94897940" }}></div>
+        <div className="h-8 w-1/3 rounded-lg mx-auto" style={{ backgroundColor: "#94897930" }}></div>
+      </div>
+    </div>
+  );
+};
 
 
 

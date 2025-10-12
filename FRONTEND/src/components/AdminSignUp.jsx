@@ -210,7 +210,7 @@ export const VerifyOtp = () => {
 
 // ---- Signup ----------------
 export const Signup = () => {
-    const { mail, isLoading, setIsLoading } = useGlobalContext()
+    const { mail, isLoading, setIsLoading, setUi, setMail } = useGlobalContext()
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
     const [phone, setPhone] = useState("")
@@ -235,6 +235,8 @@ export const Signup = () => {
                 const res = await axios.post(`${import.meta.env.VITE_DOMAIN}/api/admin/signup`, { firstName, lastName, mail, password, phone })
                 toast.success(res.data.msg + "Signup Successful ✅")
                 // console.log(res)
+                setUi(0)
+                setMail("")
                 navigate("/admin")
 
             } catch (error) {
@@ -260,7 +262,7 @@ export const Signup = () => {
                 <input type="text" placeholder="Verify Mail First" value={mail} readOnly={true} className='w-full text-center rounded-xl p-3 outline-none shadow-inner bg-[#222831]  text-[#b3aca1]' />
                 <InputField placeholder="First Name" value={firstName} setValue={setFirstName} />
                 <InputField placeholder="Last Name" value={lastName} setValue={setLastName} />
-                <InputField placeholder="Phone Number" value={phone} setValue={setPhone} />
+                <InputField placeholder="Phone Number" value={phone} setValue={setPhone} maxLength={10} />
                 {/* <InputField placeholder="Email" value={mail} /> */}
                 <InputField placeholder="Password" type="password" value={password} setValue={setPassword} />
                 <InputField placeholder="Confirm Password" type="password" value={verifyPass} setValue={setVerifyPass} />
@@ -299,9 +301,10 @@ export const Signup = () => {
 
 
 
-// ------------ Reusable Input Component ---------
-const InputField = ({ placeholder, type = "text", value, setValue, readonly }) => (
+// Reusable Input Component ---------
+const InputField = ({ placeholder, type = "text", value, setValue, maxLength }) => (
     <input
+        maxLength={10}
         type={type}
         placeholder={placeholder}
         value={value}

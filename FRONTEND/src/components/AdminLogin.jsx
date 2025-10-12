@@ -42,7 +42,7 @@ const AdminLogin = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: "#222831" }}>
-            
+
             <div
                 className="w-[90%] max-w-md p-8 rounded-2xl shadow-2xl"
                 style={{ backgroundColor: "#393E46" }}
@@ -51,7 +51,7 @@ const AdminLogin = () => {
                     className="text-3xl font-bold text-center mb-6 drop-shadow"
                     style={{ color: "#DFD0B8" }}
                 >
-                    <h2>Good Choice Car </h2><h3 className='text-2xl'>Admin Login</h3>
+                    <h2>Good Choice Car </h2><h3 className='text-2xl text-[#948983]'>Admin Login</h3>
                 </div>
 
                 {/* Mail */}
@@ -105,8 +105,8 @@ const AdminLogin = () => {
                     Login
                 </button>
                 <div className="flex justify-between mt-4 text-sm">
-                    <span className="cursor-pointer " style={{ color: "#DFD0B8" }}>
-                        Don’t have an account? <span onClick={() => nav("/adminSignUp")} className='text-blue-400 hover:underline'>Sign up</span>
+                    <span className="cursor-pointer " style={{ color: "#948979" }}>
+                        Don’t have an account? <span onClick={() => nav("/adminSignUp")} className='text-blue-500 hover:underline'>Sign up</span>
                     </span>
                     <span onClick={() => nav("/adminForgetPassword")} className="cursor-pointer hover:underline" style={{ color: "#948979" }}>
                         Forgot password?
