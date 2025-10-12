@@ -7,8 +7,8 @@ import { addUserData } from '../utils/store/UserSlice'
 
 
 const AdminLogin = () => {
-    const [mail, setMail] = useState("saurabhsingh1x@gmail.com")
-    const [password, setPassword] = useState("Password@123")
+    const [mail, setMail] = useState("testingbysaurabh@gmail.com")
+    const [password, setPassword] = useState("Pass@123")
     const nav = useNavigate()
     const dispatch = useDispatch()
 
