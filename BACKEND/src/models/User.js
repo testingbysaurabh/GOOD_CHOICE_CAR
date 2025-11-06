@@ -28,6 +28,7 @@ const UserSchema = new mongoose.Schema({
         }
     },
     mail: {
+        lowercase: true,
         type: String,
         minlength: 6,
         required: true,

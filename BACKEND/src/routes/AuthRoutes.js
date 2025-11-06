@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const validator = require('validator');
 const { User } = require('../models/User');
 const { isLoggedIn } = require('../middleware/isLoggedIn');
+const { OTP } = require('../models/OTP');
+const { VerifiedMail } = require('../models/verifiedMail');
 
 const router = express.Router();
 
@@ -114,7 +116,60 @@ router.patch('/admin/change-password', isLoggedIn, async (req, res) => {
 
 
 
-//for get user //
+
+//////////
+
+router.patch("/admin/forgetpassword", async (req, res) => {
+    try {
+        const { mail, otp, newPassword } = req.body;
+
+        // check fields
+        if (!mail) throw new Error("Please provide mail ");
+        if (!otp) throw new Error("Please provide otp ");
+        if (!newPassword) throw new Error("Please provide password ");
+
+
+        // verified check
+        const verified = await VerifiedMail.findOne({ mail: mail.toLowerCase() })
+        if (!verified) {
+            return res.status(400).json({ error: "Not a verified User " });
+        }
+
+        // find OTP in DB
+        const foundOtp = await OTP.findOne({ mail, otp });
+        if (!foundOtp) {
+            return res.status(400).json({ error: "Invalid OTP or mail" });
+        }
+
+
+        // check expiry 
+        const now = Date.now();
+        if (now - foundOtp.createdAt > 2 * 60 * 1000) {
+            return res.status(400).json({ error: "OTP expired, please request a new one" });
+        }
+
+
+
+
+        if (!validator.isStrongPassword(newPassword)) {
+            throw new Error('Please enter a strong password (upper, lower, number, symbol)');
+        }
+        const newHashedPassword = await bcrypt.hash(newPassword, 10);
+        await User.findOneAndUpdate({ mail }, { password: newHashedPassword });
+
+        await OTP.deleteMany({ mail });
+
+        return res.status(201).json({ msg: "Password reset successfully ✅" });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+});
+
+
+
+
+
+//get user //
 router.get("/admin/get-user-data", isLoggedIn, async (req, res) => {
     try {
         const { firstName, lastName, phone, mail, posts } = req.user;

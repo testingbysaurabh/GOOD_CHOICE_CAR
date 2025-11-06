@@ -8,13 +8,16 @@ export const MyContext = ({ children }) => {
     const [ui, setUi] = useState(0)
     const [mail, setMail] = useState("")
     const [isLoading, setIsLoading] = useState(false);
+    const [isDark, setIsDark] = useState(false)
+    
 
     return (
         <GlobalContext.Provider value={
             {
                 ui, setUi,
                 mail, setMail,
-                isLoading, setIsLoading
+                isLoading, setIsLoading,
+                isDark, setIsDark
 
             }
         }>

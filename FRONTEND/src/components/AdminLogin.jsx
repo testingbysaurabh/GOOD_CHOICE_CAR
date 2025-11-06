@@ -4,11 +4,17 @@ import toast from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { addUserData } from '../utils/store/UserSlice'
+import { useGlobalContext } from '../utils/context/MyContext'
+import { LoginSkeleton } from './Simmer'
+
+
 
 
 const AdminLogin = () => {
     const [mail, setMail] = useState("testingbysaurabh@gmail.com")
-    const [password, setPassword] = useState("Pass@123")
+    const [password, setPassword] = useState("Password@123")
+    const { isLoading, setIsLoading } = useGlobalContext()
+
     const nav = useNavigate()
     const dispatch = useDispatch()
 
@@ -20,7 +26,7 @@ const AdminLogin = () => {
                     return
                 }
                 const payload = mail.includes("@") ? { mail: mail, password } : { phone: mail, password }
-
+                setIsLoading(true)
                 const res = await axios.post(
                     import.meta.env.VITE_DOMAIN + '/api/admin/login',
                     payload,
@@ -34,11 +40,13 @@ const AdminLogin = () => {
                 setMail("")
                 setPassword("")
                 toast.error("Login Failed ❌ " + error.response.data.error)
+            } finally {
+                setIsLoading(false)
             }
         }
         Login()
-
     }
+    if (isLoading) return <LoginSkeleton />;
 
     return (
         <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: "#222831" }}>

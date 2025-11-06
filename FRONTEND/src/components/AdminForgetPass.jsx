@@ -132,7 +132,7 @@ export const PasswordChange = () => {
         async function upadtePass() {
             try {
                 setIsLoading(true)
-                const res = await axios.post(`${import.meta.env.VITE_DOMAIN}/api/admin/forgetpassword`, { mail, otp, newPassword }, { withCredentials: true })
+                const res = await axios.patch(`${import.meta.env.VITE_DOMAIN}/api/admin/forgetpassword`, { mail, otp, newPassword }, { withCredentials: true })
                 // console.log(res)
                 toast.success(res.data.msg)
                 setUi(0)

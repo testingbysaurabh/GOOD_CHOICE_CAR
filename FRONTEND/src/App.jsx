@@ -1,24 +1,32 @@
+import React, { lazy, Suspense } from 'react'
 import './App.css'
 import { Toaster } from 'react-hot-toast';
 import AdminLogin from "./components/AdminLogin"
 import { Route, Routes } from 'react-router-dom'
-import AdminPanel from './components/AdminPanel';
-import { AdminForgetPass } from './components/AdminForgetPass';
-import AdminSignUp from './components/AdminSignUp';
+import ProtectedRoutes from './components/ProtectedRoutes';
+
+// const AdminPanel = lazy(() => import('./components/AdminPanel'))
+const AdminSignUp = lazy(() => import('./components/AdminSignUp'))
+const AdminForgetPass = lazy(() => import('./components/AdminForgetPass').then(module => ({ default: module.AdminForgetPass })))
+const AdminPanel = lazy(() => import('./components/AdminPanel').then(module => ({ default: module.AdminPanel })))
 
 const App = () => {
   return (
-    <div>
+    <>
       <Toaster />
-      {/* <AdminPanel /> */}
-      <Routes>
-        <Route path='/admin' element={<AdminLogin />} />
-        <Route path='/adminSignUp' element={<AdminSignUp />} />
-        <Route path='/adminForgetPassword' element={<AdminForgetPass />} />
+      <Suspense fallback={<div className="p-4 text-center">Loading...</div>}>
+        <Routes>
+          <Route path='/admin' element={<AdminLogin />} />
+          <Route path='/adminSignUp' element={<AdminSignUp />} />
+          <Route path='/adminForgetPassword' element={<AdminForgetPass />} />
 
-        < Route path='/adminPanel' element={<AdminPanel />} />
-      </Routes>
-    </div >
+          {/* ProtectedRoutes routes */}
+          <Route path='/' element={<ProtectedRoutes />} >
+            <Route path='/adminPanel' element={<AdminPanel />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </>
   )
 }
 
