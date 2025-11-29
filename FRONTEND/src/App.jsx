@@ -5,6 +5,7 @@ import AdminLogin from "./components/AdminLogin"
 import { Route, Routes } from 'react-router-dom'
 import ProtectedRoutes from './components/ProtectedRoutes';
 import Home from './components/Home';
+import { PostsSkeleton } from './components/Simmer';
 
 
 // const AdminPanel = lazy(() => import('./components/AdminPanel'))
@@ -17,7 +18,7 @@ const App = () => {
   return (
     <>
       <Toaster />
-      <Suspense fallback={<div className="p-4 text-center">Loading...</div>}>
+      <Suspense fallback={<div className="p-4 text-center"><PostsSkeleton/></div>}>
         <Routes>
           <Route path='/home' element={<Home />} />
           <Route path='/admin' element={<AdminLogin />} />

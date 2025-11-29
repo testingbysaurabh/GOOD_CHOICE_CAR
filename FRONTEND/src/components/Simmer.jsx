@@ -148,4 +148,40 @@ export const LoginSkeleton = () => {
 
 
 
+export const PostsSkeleton = () => {
+    return (
+        <div
+            className="
+                mt-24 ml-20
+                grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+                gap-6
+            "
+        >
+            {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                    key={i}
+                    className="
+                        bg-white rounded-xl shadow-md  overflow-hidden 
+                        animate-pulse
+                    "
+                >
+                    {/*  Image area shimmer */}
+                    <div className="w-full h-44 bg-gray-300"></div>
+
+                    {/* Text area shimmer */}
+                    <div className="p-3 space-y-2">
+                        <div className="h-4 bg-gray-300 rounded w-3/4"></div>  {/* title */}
+                        <div className="h-4 bg-gray-300 rounded w-1/2"></div>  {/* price */}
+                        <div className="h-3 bg-gray-300 rounded w-2/3 mt-2"></div> {/* createdAt */}
+                    </div>
+
+                </div>
+            ))}
+        </div>
+    );
+};
+
+
+
+
 
