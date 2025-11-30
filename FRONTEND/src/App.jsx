@@ -13,14 +13,15 @@ const AdminSignUp = lazy(() => import('./components/AdminSignUp'))
 const AdminForgetPass = lazy(() => import('./components/AdminForgetPass').then(module => ({ default: module.AdminForgetPass })))
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(module => ({ default: module.AdminPanel })))
 const Posts = lazy(() => import("./components/Posts"))
+const PostsEdit = lazy(() => import("./components/PostEdit"))
 
 const App = () => {
   return (
     <>
       <Toaster />
-      <Suspense fallback={<div className="p-4 text-center"><PostsSkeleton/></div>}>
+      <Suspense fallback={<div className="p-4 text-center"><PostsSkeleton /></div>}>
         <Routes>
-          <Route path='/home' element={<Home />} />
+          <Route path='/' element={<Home />} />
           <Route path='/admin' element={<AdminLogin />} />
           <Route path='/adminSignUp' element={<AdminSignUp />} />
           <Route path='/adminForgetPassword' element={<AdminForgetPass />} />
@@ -29,6 +30,7 @@ const App = () => {
           <Route path='/' element={<ProtectedRoutes />} >
             <Route path='/adminPanel' element={<AdminPanel />} />
             <Route path='/posts' element={<Posts />} />
+            <Route path="/postedit/:id" element={<PostsEdit />} />
           </Route>
         </Routes>
       </Suspense>

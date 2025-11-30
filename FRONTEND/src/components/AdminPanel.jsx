@@ -32,7 +32,7 @@ export const AdminNavbar = () => {
     return (
         <div
             style={backgroundColor}
-            className="flex justify-between fixed min-w-[100vw] p-2 z-10 top-0 left-0"
+            className="flex justify-between fixed min-w-[100vw] p-2 z-10 top-0 left-0 shadow-2xs drop-shadow-cyan-800 "
         >
             <div id="left" className="flex justify-between items-center gap-5">
                 <img src={car2} alt="GCC" className="h-12" />

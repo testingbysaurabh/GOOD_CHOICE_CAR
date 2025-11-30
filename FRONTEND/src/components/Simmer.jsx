@@ -183,5 +183,55 @@ export const PostsSkeleton = () => {
 
 
 
+export const EditPostSkeleton = () => {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Top bar skeleton */}
+      <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-16 h-7 rounded-full bg-gray-200 animate-pulse" />
+          <div className="w-40 h-5 rounded-full bg-gray-200 animate-pulse max-md:w-28" />
+        </div>
+        <div className="hidden md:flex items-center gap-2">
+          <div className="w-16 h-7 rounded-full bg-gray-200 animate-pulse" />
+          <div className="w-24 h-7 rounded-full bg-gray-200 animate-pulse" />
+        </div>
+      </div>
+
+      {/* Card skeleton */}
+      <div className="max-w-5xl mx-auto mt-6 mb-10 px-3">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Image + summary skeleton */}
+          <div className="grid md:grid-cols-[1.7fr,1.3fr]">
+            <div className="h-64 bg-gray-200 animate-pulse" />
+            <div className="p-4 border-l border-gray-100 bg-gray-50/60 space-y-3">
+              <div className="h-4 w-44 bg-gray-200 rounded animate-pulse" />
+              <div className="h-7 w-32 bg-gray-200 rounded animate-pulse" />
+              <div className="h-3 w-28 bg-gray-200 rounded animate-pulse" />
+            </div>
+          </div>
+
+          {/* Form skeleton */}
+          <div className="p-5 grid md:grid-cols-2 gap-5 border-t border-gray-100 text-xs">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+                <div className="h-8 w-full bg-gray-200 rounded-xl animate-pulse" />
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile bottom buttons skeleton */}
+          <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between md:hidden">
+            <div className="w-16 h-7 bg-gray-200 rounded-full animate-pulse" />
+            <div className="w-24 h-7 bg-gray-200 rounded-full animate-pulse" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 
 
