@@ -281,7 +281,7 @@ router.post("/admin/posts/create-post", isLoggedIn, upload.array("images", 10), 
             imageUrls = await Promise.all(uploadPromises);
         }
 
-        
+
 
         const {
             brand,
@@ -325,7 +325,7 @@ router.post("/admin/posts/create-post", isLoggedIn, upload.array("images", 10), 
             registrationYear: registrationYear
                 ? Number(registrationYear)
                 : undefined,
-            owners: owners, 
+            owners: owners,
 
             fuelType: fuelType,
             transmission: transmission,
@@ -368,9 +368,51 @@ router.delete("/admin/posts/delete/:id", isLoggedIn, isAuthor, async (req, res) 
     try {
         const { id } = req.params;
 
-        // Delete the post document
-        await Post.deleteOne({ _id: id });
+        // First, find the post to get the images
+        const postToDelete = await Post.findById(id);
+        if (!postToDelete) {
+            return res.status(404).json({ msg: "Post not found" });
+        }
 
+        // Delete images from Cloudinary if they exist
+        if (postToDelete.images && postToDelete.images.length > 0) {
+            const deletePromises = postToDelete.images.map(async (imageUrl) => {
+                try {
+                    // Extract public_id from Cloudinary URL
+                    // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/v{version}/{folder}/{public_id}.{format}
+                    // or: https://res.cloudinary.com/{cloud_name}/image/upload/{folder}/{public_id}.{format}
+
+                    // Extract the path after /upload/
+                    const uploadIndex = imageUrl.indexOf('/upload/');
+                    if (uploadIndex === -1) return;
+
+                    let pathAfterUpload = imageUrl.substring(uploadIndex + '/upload/'.length);
+
+                    // Remove version if present (v1234567890/)
+                    if (pathAfterUpload.startsWith('v')) {
+                        const versionEnd = pathAfterUpload.indexOf('/');
+                        if (versionEnd !== -1) {
+                            pathAfterUpload = pathAfterUpload.substring(versionEnd + 1);
+                        }
+                    }
+
+                    // Remove file extension to get public_id
+                    const publicId = pathAfterUpload.replace(/\.[^/.]+$/, '');
+
+                    // Delete from Cloudinary
+                    await cloudinary.uploader.destroy(publicId);
+                } catch (error) {
+                    // Log error but don't fail the entire operation
+                    console.error(`Error deleting image from Cloudinary: ${error.message}`);
+                }
+            });
+
+            // Wait for all image deletions to complete
+            await Promise.all(deletePromises);
+        }
+
+        // Delete the post document from database
+        await Post.deleteOne({ _id: id });
 
         // Remove the post ID from the User's posts array
         await User.findByIdAndUpdate(req.user._id, {
@@ -407,7 +449,7 @@ router.patch('/admin/posts/edit/:id', isLoggedIn, isAuthor, async (req, res) => 
             pincode,
         } = req.body;
 
-       
+
         const updateData = {};
         if (brand) updateData.brand = brand;
         if (model) updateData.model = model;
