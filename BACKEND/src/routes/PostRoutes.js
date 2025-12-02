@@ -312,25 +312,17 @@ router.post("/admin/posts/create-post", isLoggedIn, upload.array("images", 10), 
             brand: brand,
             model: model,
             variant: variant,
-
             price: {
                 amount: Number(amount),
                 currency: currency || "INR",
             },
-
             kilometersDriven: kilometersDriven ? Number(kilometersDriven) : undefined,
-            manufacturingYear: manufacturingYear
-                ? Number(manufacturingYear)
-                : undefined,
-            registrationYear: registrationYear
-                ? Number(registrationYear)
-                : undefined,
+            manufacturingYear: manufacturingYear ? Number(manufacturingYear) : undefined,
+            registrationYear: registrationYear ? Number(registrationYear) : undefined,
             owners: owners,
-
             fuelType: fuelType,
             transmission: transmission,
             color: color,
-
             seller: {
                 sellerName: sellerName,
                 contact: contact,

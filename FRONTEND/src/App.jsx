@@ -6,8 +6,7 @@ import { Route, Routes } from 'react-router-dom'
 import ProtectedRoutes from './components/ProtectedRoutes';
 import Home from './components/Home';
 import { PostsSkeleton } from './components/Simmer';
-import Addpost from './components/Addpost';
-import Test from './components/Test';
+// import Test from './components/Test';
 
 
 // const AdminPanel = lazy(() => import('./components/AdminPanel'))
@@ -16,6 +15,9 @@ const AdminForgetPass = lazy(() => import('./components/AdminForgetPass').then(m
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(module => ({ default: module.AdminPanel })))
 const Posts = lazy(() => import("./components/Posts"))
 const PostsEdit = lazy(() => import("./components/PostEdit"))
+const Addpost = lazy(() => import("./components/Addpost"))
+const DetailView = lazy(() => import("./components/DetailView"))
+
 
 const App = () => {
   return (
@@ -23,7 +25,8 @@ const App = () => {
       <Toaster />
       <Suspense fallback={<div className="p-4 text-center"><PostsSkeleton /></div>}>
         <Routes>
-          <Route path='/' element={<Test />} />
+          <Route path='/' element={<Home />} />
+          <Route path='/detailview' element={<DetailView />} />
           <Route path='/admin' element={<AdminLogin />} />
           <Route path='/adminSignUp' element={<AdminSignUp />} />
           <Route path='/adminForgetPassword' element={<AdminForgetPass />} />

@@ -33,7 +33,7 @@ export const AdminNavbar = () => {
     return (
         <div
             
-            className="flex justify-between fixed min-w-[100vw] p-2 z-10 top-0 left-0  shadow-lg min-lg:w-[100vw] bg-gray-100"
+            className="flex justify-between fixed min-w-[100vw] p-2 z-10 top-0 left-0  shadow-lg min-lg:w-[100vw] bg-gray-100 max-md:w-svw"
         >
             <div id="left" className="flex justify-between items-center gap-5">
                 <img src={logo} alt="GCC" className="h-8 rounded-full" />
@@ -69,11 +69,11 @@ export const LeftSidebar = () => {
     return (
         <>
 
-            {isOpen && (<div className="fixed inset-0 bg-black/40 sm:hidden z-20 " onClick={toggleSidebar} />)}
+            {isOpen && (<div className="fixed inset-0 bg-black/40 sm:hidden z-20 min-h-svh" onClick={toggleSidebar} />)}
 
             <div
                 className={`fixed left-0 top-12 bg-gray-100 backdrop-blur-xs z-50 py-2 px-2 shadow-lg shadow-gray-500 h-[95vh] flex flex-col gap-3 transition-all duration-300
-                             overflow-hidden ${isOpen ? "w-[60%] sm:w-[220px]" : "w-[70px]"} `}
+                             overflow-hidden ${isOpen ? "w-[60%] sm:w-[220px]" : "w-[70px] " } `}
             >
 
                 <div className="flex items-center justify-between px-2 py-3 ">
@@ -117,6 +117,7 @@ export const LeftSidebar = () => {
                         {isOpen && <span>{label}</span>}
                     </NavLink>
                 ))}
+                
             </div>
         </>
     );

@@ -8,8 +8,9 @@ export const MyContext = ({ children }) => {
     const [ui, setUi] = useState(0)
     const [mail, setMail] = useState("")
     const [isLoading, setIsLoading] = useState(false);
-    const [isDark, setIsDark] = useState(false)
-    
+    const [isDark, setIsDark] = useState(false);
+    const [orignalData, setOrignalData] = useState([])
+
 
     return (
         <GlobalContext.Provider value={
@@ -17,7 +18,8 @@ export const MyContext = ({ children }) => {
                 ui, setUi,
                 mail, setMail,
                 isLoading, setIsLoading,
-                isDark, setIsDark
+                isDark, setIsDark,
+                orignalData, setOrignalData
 
             }
         }>

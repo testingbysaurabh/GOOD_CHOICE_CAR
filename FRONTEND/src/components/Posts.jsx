@@ -91,14 +91,11 @@ const Posts = () => {
         <div>
             <AdminPanel />
 
-            <div className="absolute mt-20 ml-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-5 w-[93%] shadow-inner ">
+            <div className="absolute mt-20 ml-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-5 w-[93%] shadow-inner max-md:w-fit max-md:mt-14">
                 {userData && userData.length > 0 ? (
                     userData.map((item) => {
                         const imagesLength = (item.images && item.images.length) || 0;
-                        const currentIdx =
-                            typeof imageIndexes[item._id] === "number"
-                                ? imageIndexes[item._id]
-                                : 0;
+                        const currentIdx = typeof imageIndexes[item._id] === "number" ? imageIndexes[item._id] : 0;
                         const displaySrc = getCurrentImage(item) || item.images?.[0] || "";
 
                         return (

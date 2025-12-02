@@ -46,7 +46,6 @@ const postSchema = new mongoose.Schema({
     owners: {
         type: String,
         trim: true,
-        minLength: 1,
         maxLength: 2
     },
 
