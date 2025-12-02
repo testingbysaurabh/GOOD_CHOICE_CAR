@@ -6,6 +6,8 @@ import { Route, Routes } from 'react-router-dom'
 import ProtectedRoutes from './components/ProtectedRoutes';
 import Home from './components/Home';
 import { PostsSkeleton } from './components/Simmer';
+import Addpost from './components/Addpost';
+import Test from './components/Test';
 
 
 // const AdminPanel = lazy(() => import('./components/AdminPanel'))
@@ -21,7 +23,7 @@ const App = () => {
       <Toaster />
       <Suspense fallback={<div className="p-4 text-center"><PostsSkeleton /></div>}>
         <Routes>
-          <Route path='/' element={<Home />} />
+          <Route path='/' element={<Test />} />
           <Route path='/admin' element={<AdminLogin />} />
           <Route path='/adminSignUp' element={<AdminSignUp />} />
           <Route path='/adminForgetPassword' element={<AdminForgetPass />} />
@@ -31,6 +33,7 @@ const App = () => {
             <Route path='/adminPanel' element={<AdminPanel />} />
             <Route path='/posts' element={<Posts />} />
             <Route path="/postedit/:id" element={<PostsEdit />} />
+            <Route path="/addpost" element={<Addpost/>}/>
           </Route>
         </Routes>
       </Suspense>

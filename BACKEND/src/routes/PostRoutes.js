@@ -5,6 +5,12 @@ const { isAuthor } = require("../middleware/isAuthor");
 const { User } = require("../models/User");
 const router = express.Router();
 
+const upload = require("../middleware/upload");
+const cloudinary = require("../Config/cloudinary");
+const fs = require("fs").promises;
+
+
+
 
 //public
 router.get("/all-posts", async (req, res) => {
@@ -195,13 +201,94 @@ router.get("/posts/:id", async (req, res) => {
 
 
 
-router.post("/admin/posts/create-post", isLoggedIn, async (req, res) => {
+// router.post("/admin/posts/create-post", isLoggedIn, async (req, res) => {
+//     try {
+//         const {
+//             brand,
+//             model,
+//             variant,
+//             price: { amount, currency },
+//             kilometersDriven,
+//             manufacturingYear,
+//             registrationYear,
+//             owners,
+//             fuelType,
+//             transmission,
+//             color,
+//             seller: {
+//                 sellerName,
+//                 contact,
+//                 location: { city, area },
+//             },
+//             insurance,
+//             images,
+//         } = req.body;
+
+//         // Now use these variables to create your Post document
+//         const NewPost = await Post.create({
+//             brand,
+//             model,
+//             variant,
+//             price: { amount, currency },
+//             kilometersDriven,
+//             manufacturingYear,
+//             registrationYear,
+//             owners,
+//             fuelType,
+//             transmission,
+//             color,
+//             seller: {
+//                 sellerName,
+//                 contact,
+//                 location: { city, area },
+//             },
+//             insurance,
+//             images,
+//             author: req.user._id,
+//         });
+
+
+//         ///for push  post id in user arry 
+//         req.user.posts.push(NewPost._id)
+//         await req.user.save()
+
+
+//         res.status(201).json({ msg: "Post created", data: NewPost });
+//     } catch (error) {
+//         res.status(400).json({ error: error.message });
+//     }
+// });
+
+
+
+router.post("/admin/posts/create-post", isLoggedIn, upload.array("images", 10), async (req, res) => {
     try {
+
+        let imageUrls = [];  //// IMAGES: Cloudinary pe upload karke URLs array banayenge
+
+        if (req.files && req.files.length > 0) {
+            const uploadPromises = req.files.map(async (file) => {
+                const result = await cloudinary.uploader.upload(file.path, {
+                    folder: "car-posts",
+                });
+
+                // local file delete
+                await fs.unlink(file.path);
+
+                return result.secure_url; // sirf URL chahiye, kyunki schema => [String]
+            });
+
+            imageUrls = await Promise.all(uploadPromises);
+        }
+
+        
+
         const {
             brand,
             model,
             variant,
-            price: { amount, currency },
+            amount,
+            currency,
             kilometersDriven,
             manufacturingYear,
             registrationYear,
@@ -209,49 +296,71 @@ router.post("/admin/posts/create-post", isLoggedIn, async (req, res) => {
             fuelType,
             transmission,
             color,
-            seller: {
-                sellerName,
-                contact,
-                location: { city, area },
-            },
+            sellerName,
+            contact,
+            city,
+            area,
             insurance,
-            images,
+            pincode,
         } = req.body;
 
-        // Now use these variables to create your Post document
+        // Boolean ka proper conversion
+        const insuranceBool = typeof insurance === "string" ? insurance === "true" || insurance === "1" || insurance === "yes" : !!insurance;
+
+        // Post  schema ko follow karke
         const NewPost = await Post.create({
-            brand,
-            model,
-            variant,
-            price: { amount, currency },
-            kilometersDriven,
-            manufacturingYear,
-            registrationYear,
-            owners,
-            fuelType,
-            transmission,
-            color,
-            seller: {
-                sellerName,
-                contact,
-                location: { city, area },
+            brand: brand,
+            model: model,
+            variant: variant,
+
+            price: {
+                amount: Number(amount),
+                currency: currency || "INR",
             },
-            insurance,
-            images,
-            author: req.user._id,
+
+            kilometersDriven: kilometersDriven ? Number(kilometersDriven) : undefined,
+            manufacturingYear: manufacturingYear
+                ? Number(manufacturingYear)
+                : undefined,
+            registrationYear: registrationYear
+                ? Number(registrationYear)
+                : undefined,
+            owners: owners, 
+
+            fuelType: fuelType,
+            transmission: transmission,
+            color: color,
+
+            seller: {
+                sellerName: sellerName,
+                contact: contact,
+                location: {
+                    city: city,
+                    area: area,
+                    pincode: pincode,
+                },
+            },
+            insurance: insuranceBool,
+
+            images: imageUrls,         // yaha saari Cloudinary URLs ka array
+            author: req.user._id,      // from isLoggedIn middleware
         });
 
+        //  User ke posts array me push karo
+        if (req.user && req.user.posts) {
+            req.user.posts.push(NewPost._id);
+            await req.user.save();
+        }
 
-        ///for push  post id in user arry 
-        req.user.posts.push(NewPost._id)
-        await req.user.save()
-
-
-        res.status(201).json({ msg: "Post created", data: NewPost });
+        return res.status(201).json({ msg: "Post created", data: NewPost });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        // console.error(error);
+        return res.status(400).json({ error: error.message });
     }
-});
+}
+);
+
+
 
 
 
@@ -294,10 +403,11 @@ router.patch('/admin/posts/edit/:id', isLoggedIn, isAuthor, async (req, res) => 
             color,
             seller,
             insurance,
-            images
+            images,
+            pincode,
         } = req.body;
 
-        // Build an update object with only provided fields
+       
         const updateData = {};
         if (brand) updateData.brand = brand;
         if (model) updateData.model = model;

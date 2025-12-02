@@ -2,10 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { updatePost } from "../utils/store/UserSlice";
 import { EditPostSkeleton } from "./Simmer";
 import { useGlobalContext } from "../utils/context/MyContext";
+
+/**
+ * PostsEdit (updated)
+ * - Added seller.location.pincode input & payload handling
+ * - Only image remove + set-as-main (no add/edit/bulk)
+ * - Keeps styling and behavior unchanged
+ */
 
 const PostsEdit = () => {
   const { id } = useParams();
@@ -13,7 +20,7 @@ const PostsEdit = () => {
   const dispatch = useDispatch();
   const { isLoading, setIsLoading } = useGlobalContext();
 
-  const posts = useSelector((store) => store.User.posts); // tumne pehle ye structure banaya tha
+  const posts = useSelector((s) => s.User.posts);
   const currentPost = posts?.find((p) => p._id === id);
 
   const [editData, setEditData] = useState(null);
@@ -29,14 +36,12 @@ const PostsEdit = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="bg-white shadow-md rounded-2xl px-6 py-5 flex flex-col items-center gap-3">
-          <p className="text-gray-700 text-sm">
-            Post not found or data not loaded.
-          </p>
+          <p className="text-gray-700 text-sm">Post not found or not loaded yet.</p>
           <button
             onClick={() => navigate(-1)}
             className="text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-100 transition"
           >
-            Go Back
+            Go back
           </button>
         </div>
       </div>
@@ -44,58 +49,42 @@ const PostsEdit = () => {
   }
 
   if (!editData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500 text-sm">Loading post data...</p>
-      </div>
-    );
+    return <EditPostSkeleton />;
   }
 
-  const handleChange = (key, value) => {
-    setEditData((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  const handlePriceChange = (field, value) => {
-    setEditData((prev) => ({
-      ...prev,
-      price: {
-        ...prev.price,
-        [field]: value,
-      },
-    }));
-  };
-
-  const handleSellerChange = (field, value) => {
-    setEditData((prev) => ({
-      ...prev,
+  // Generic setters
+  const setField = (key, value) => setEditData((p) => ({ ...p, [key]: value }));
+  const setPriceField = (field, value) =>
+    setEditData((p) => ({ ...p, price: { ...(p.price || {}), [field]: value } }));
+  const setSellerField = (field, value) =>
+    setEditData((p) => ({ ...p, seller: { ...(p.seller || {}), [field]: value } }));
+  const setSellerLocation = (field, value) =>
+    setEditData((p) => ({
+      ...p,
       seller: {
-        ...prev.seller,
-        [field]: value,
+        ...(p.seller || {}),
+        location: { ...((p.seller && p.seller.location) || {}), [field]: value },
       },
     }));
+
+  // IMAGE helpers: only remove and set-as-main
+  const removeImageAt = (index) => {
+    setEditData((p) => {
+      const imgs = Array.isArray(p.images) ? [...p.images] : [];
+      if (index < 0 || index >= imgs.length) return p;
+      imgs.splice(index, 1);
+      return { ...p, images: imgs };
+    });
   };
 
-  const handleLocationChange = (field, value) => {
-    setEditData((prev) => ({
-      ...prev,
-      seller: {
-        ...prev.seller,
-        location: {
-          ...prev.seller.location,
-          [field]: value,
-        },
-      },
-    }));
-  };
-
-  const handleImageChange = (value) => {
-    setEditData((prev) => ({
-      ...prev,
-      images: value ? [value] : [],
-    }));
+  const setAsMain = (index) => {
+    setEditData((p) => {
+      const imgs = Array.isArray(p.images) ? [...p.images] : [];
+      if (index <= 0 || index >= imgs.length) return p; // already main or invalid
+      const [img] = imgs.splice(index, 1);
+      imgs.unshift(img);
+      return { ...p, images: imgs };
+    });
   };
 
   const handleSave = async () => {
@@ -111,9 +100,18 @@ const PostsEdit = () => {
           amount: Number(editData?.price?.amount) || 0,
           currency: editData?.price?.currency || "INR",
         },
-        kilometersDriven: Number(editData.kilometersDriven) || 0,
-        manufacturingYear: Number(editData.manufacturingYear) || null,
-        registrationYear: Number(editData.registrationYear) || null,
+        kilometersDriven:
+          editData.kilometersDriven !== "" && editData.kilometersDriven != null
+            ? Number(editData.kilometersDriven)
+            : undefined,
+        manufacturingYear:
+          editData.manufacturingYear !== "" && editData.manufacturingYear != null
+            ? Number(editData.manufacturingYear)
+            : undefined,
+        registrationYear:
+          editData.registrationYear !== "" && editData.registrationYear != null
+            ? Number(editData.registrationYear)
+            : undefined,
         owners: editData.owners,
         fuelType: editData.fuelType,
         transmission: editData.transmission,
@@ -124,80 +122,80 @@ const PostsEdit = () => {
           location: {
             city: editData?.seller?.location?.city,
             area: editData?.seller?.location?.area,
+            pincode: editData?.seller?.location?.pincode || "",
           },
         },
         insurance: Boolean(editData.insurance),
-        images: editData.images || [],
+        images: Array.isArray(editData.images) ? editData.images : [],
       };
 
-      await axios.patch(
+      const res = await axios.patch(
         `${import.meta.env.VITE_DOMAIN}/api/admin/posts/edit/${id}`,
-        editData,
+        payload,
         { withCredentials: true }
       );
-      dispatch(updatePost({ id, data: editData }));
-      toast.success("Post Updated");
+
+      const updated = res.data?.data || payload;
+      dispatch(updatePost({ id, data: updated }));
+
+      toast.success("Post updated successfully ✅");
       navigate(-1);
-    } catch (error) {
-      console.error(error);
-      toast.error(error?.response?.data?.message || "Failed to update post ❌");
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.error || "Failed to update post ❌");
     } finally {
       setSaving(false);
       setIsLoading(false);
     }
   };
 
-  const handleCancel = () => {
-    navigate(-1);
-  };
-
-  return isLoading ? (
-    <EditPostSkeleton />
-  ) : (
-    <div className="min-h-screen bg-gray-50 ">
+  return (
+    <div className="min-h-screen bg-gray-50 pb-10">
       {/* Top bar */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between ">
-        <div className="flex items-center gap-2">
+      <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
           <button
-            onClick={handleCancel}
-            className="text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-100 transition "
+            onClick={() => navigate(-1)}
+            className="text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-100 transition"
           >
             Back
           </button>
-          <h1 className="text-sm font-semibold text-gray-900 max-md:text-[10px] max-md:flex max-md:flex-row">
-            <span> Edit Post – </span>
-            <span className="text-gray-600">
+          <h1 className="text-sm font-semibold text-gray-900">
+            Edit Post —{" "}
+            <span className="text-gray-600 font-normal">
               {editData.brand} {editData.model}
             </span>
           </h1>
         </div>
 
-        <div className="flex items-center gap-2 max-md:hidden ">
+        <div className="flex items-center gap-2">
           <button
-            onClick={handleCancel}
+            onClick={() => navigate(-1)}
             disabled={saving}
             className="text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-100 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
+
           <button
             onClick={handleSave}
             disabled={saving}
-            className="text-xs font-medium px-4 py-1.5 rounded-full border border-emerald-200 bg-emerald-500 text-white hover:bg-emerald-600 hover:border-emerald-300 active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed"
+            className="text-xs font-medium px-4 py-1.5 rounded-full border border-emerald-200 bg-emerald-500 text-white hover:bg-emerald-600 active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto mt-6 mb-10 px-3">
+      <div className="max-w-5xl mx-auto mt-6 px-4">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="grid md:grid-cols-[1.7fr,1.3fr] gap-0">
+            {/* Left: main image preview */}
             <div className="relative">
               <img
-                src={editData.images?.[0]}
+                src={editData.images?.[0] || ""}
                 alt={editData.model}
-                className="w-full h-64 object-cover"
+                className="w-full h-64 object-cover bg-gray-100"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-black/10 pointer-events-none" />
 
@@ -219,28 +217,22 @@ const PostsEdit = () => {
                   </p>
                   {editData.kilometersDriven != null && (
                     <p className="text-[11px] bg-black/50 px-2 py-0.5 rounded-full">
-                      {Number(editData.kilometersDriven)?.toLocaleString(
-                        "en-IN"
-                      )}{" "}
-                      km
+                      {Number(editData.kilometersDriven).toLocaleString("en-IN")} km
                     </p>
                   )}
                 </div>
               )}
             </div>
 
+            {/* Right summary */}
             <div className="p-4 flex flex-col justify-between border-l border-gray-100 bg-gray-50/60">
               <div className="space-y-3">
                 <p className="font-semibold text-gray-900 text-sm line-clamp-2">
-                  {editData.brand} {editData.model}{" "}
-                  {editData.variant && `• ${editData.variant}`}
+                  {editData.brand} {editData.model} {editData.variant ? `• ${editData.variant}` : ""}
                 </p>
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-2xl font-bold text-emerald-600">
-                    ₹{" "}
-                    {Number(editData?.price?.amount || 0).toLocaleString(
-                      "en-IN"
-                    )}
+                    ₹ {Number(editData?.price?.amount || 0).toLocaleString("en-IN")}
                   </p>
                   {editData.color && (
                     <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
@@ -250,351 +242,128 @@ const PostsEdit = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 text-[11px]">
-                  {editData.manufacturingYear && (
-                    <span className="px-2 py-0.5 rounded-full bg-white border border-gray-100 text-gray-600">
-                      Mfg. {editData.manufacturingYear}
-                    </span>
-                  )}
-                  {editData.registrationYear && (
-                    <span className="px-2 py-0.5 rounded-full bg-white border border-gray-100 text-gray-600">
-                      Reg. {editData.registrationYear}
-                    </span>
-                  )}
-                  {editData.transmission && (
-                    <span className="px-2 py-0.5 rounded-full bg-white border border-gray-100 text-gray-600">
-                      {editData.transmission}
-                    </span>
-                  )}
-                  {editData.owners && (
-                    <span className="px-2 py-0.5 rounded-full bg-white border border-gray-100 text-gray-600">
-                      {editData.owners} Owner
-                    </span>
-                  )}
-                  <span className="px-2 py-0.5 rounded-full bg-white border border-gray-100 text-gray-600">
-                    Insurance: {editData.insurance ? "Yes" : "No"}
-                  </span>
+                  {editData.manufacturingYear && <Badge text={`Mfg. ${editData.manufacturingYear}`} />}
+                  {editData.registrationYear && <Badge text={`Reg. ${editData.registrationYear}`} />}
+                  {editData.transmission && <Badge text={editData.transmission} />}
+                  {editData.owners && <Badge text={`${editData.owners} Owner`} />}
+                  <Badge text={`Insurance: ${editData.insurance ? "Yes" : "No"}`} />
                 </div>
               </div>
 
               <div className="mt-4 text-[11px] text-gray-500">
-                <p className="font-medium text-gray-700 mb-1">
-                  Seller: {editData?.seller?.sellerName || "—"}
-                </p>
+                <p className="font-medium text-gray-700 mb-1">Seller: {editData?.seller?.sellerName || "—"}</p>
                 <p>
-                  {editData?.seller?.location?.area &&
-                    `${editData.seller.location.area}, `}
+                  {editData?.seller?.location?.area && `${editData.seller.location.area}, `}
                   {editData?.seller?.location?.city}
+                  {editData?.seller?.location?.pincode ? ` • ${editData.seller.location.pincode}` : ""}
                 </p>
                 <p>{editData?.seller?.contact}</p>
               </div>
             </div>
           </div>
 
+          {/* Editable form */}
           <div className="p-5 grid md:grid-cols-2 gap-5 border-t border-gray-100">
+            {/* Left column: car details */}
             <div className="space-y-4">
-              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Car Details
-              </h2>
+              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Car Details</h2>
 
               <div className="space-y-3 text-xs">
-                <div>
-                  <label className="block text-gray-500 mb-1">Brand</label>
-                  <input
-                    type="text"
-                    value={editData.brand || ""}
-                    onChange={(e) => handleChange("brand", e.target.value)}
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                    placeholder="mahindra-44"
-                  />
-                </div>
+                <FormInput label="Brand" value={editData.brand} onChange={(v) => setField("brand", v)} />
+                <FormInput label="Model" value={editData.model} onChange={(v) => setField("model", v)} />
+                <FormInput label="Variant" value={editData.variant} onChange={(v) => setField("variant", v)} />
 
-                <div>
-                  <label className="block text-gray-500 mb-1">Model</label>
-                  <input
-                    type="text"
-                    value={editData.model || ""}
-                    onChange={(e) => handleChange("model", e.target.value)}
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                    placeholder="bolero"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-500 mb-1">Variant</label>
-                  <input
-                    type="text"
-                    value={editData.variant || ""}
-                    onChange={(e) => handleChange("variant", e.target.value)}
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                    placeholder="ZLX"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <FormInput label="Manufacturing Year" type="number" value={editData.manufacturingYear} onChange={(v) => setField("manufacturingYear", v)} />
+                  <FormInput label="Registration Year" type="number" value={editData.registrationYear} onChange={(v) => setField("registrationYear", v)} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-gray-500 mb-1">
-                      Manufacturing Year
-                    </label>
-                    <input
-                      type="number"
-                      value={editData.manufacturingYear || ""}
-                      onChange={(e) =>
-                        handleChange("manufacturingYear", e.target.value)
-                      }
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                      placeholder="2019"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-500 mb-1">
-                      Registration Year
-                    </label>
-                    <input
-                      type="number"
-                      value={editData.registrationYear || ""}
-                      onChange={(e) =>
-                        handleChange("registrationYear", e.target.value)
-                      }
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                      placeholder="2020"
-                    />
-                  </div>
+                  <FormInput label="Kilometers Driven" type="number" value={editData.kilometersDriven} onChange={(v) => setField("kilometersDriven", v)} />
+                  <FormInput label="Owners" value={editData.owners} onChange={(v) => setField("owners", v)} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-gray-500 mb-1">
-                      Kilometers Driven
-                    </label>
-                    <input
-                      type="number"
-                      value={editData.kilometersDriven || ""}
-                      onChange={(e) =>
-                        handleChange("kilometersDriven", e.target.value)
-                      }
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                      placeholder="45000"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-500 mb-1">Owners</label>
-                    <input
-                      type="text"
-                      value={editData.owners || ""}
-                      onChange={(e) => handleChange("owners", e.target.value)}
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                      placeholder="1"
-                    />
-                  </div>
+                  <SelectInput label="Fuel Type" value={editData.fuelType} onChange={(v) => setField("fuelType", v)} options={["Petrol","Diesel","CNG","Electric","Hybrid","Other"]} />
+                  <SelectInput label="Transmission" value={editData.transmission} onChange={(v) => setField("transmission", v)} options={["Manual","Automatic","AMT","Other"]} />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <label className="block text-gray-500">Fuel Type</label>
-                    <select
-                      value={editData.fuelType || ""}
-                      onChange={(e) =>
-                        setEditData((p) => ({ ...p, fuelType: e.target.value }))
-                      }
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white 
-                                     focus:outline-none focus:ring-2 focus:ring-emerald-500/40 
-                                   focus:border-emerald-500 text-xs"
-                    >
-                      {/* <option value="">Select fuel type</option> */}
-                      <option value="Petrol">Petrol</option>
-                      <option value="Diesel">Diesel</option>
-                      <option value="CNG">CNG</option>
-                      <option value="Electric">Electric</option>
-                      <option value="Hybrid">Hybrid</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-gray-500">Transmission</label>
-                    <select
-                      value={editData.transmission || ""}
-                      onChange={(e) =>
-                        setEditData((p) => ({
-                          ...p,
-                          transmission: e.target.value,
-                        }))
-                      }
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white 
-                                                        focus:outline-none focus:ring-2 focus:ring-emerald-500/40 
-                                                        focus:border-emerald-500 text-xs"
-                    >
-                      {/* <option value="">Select transmission</option> */}
-                      <option value="Manual">Manual</option>
-                      <option value="Automatic">Automatic</option>
-                      <option value="AMT">AMT</option>
-                      <option value="DCT">DCT</option>
-                      <option value="CVT">CVT</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-gray-500 mb-1">Color</label>
-                  <input
-                    type="text"
-                    value={editData.color || ""}
-                    onChange={(e) => handleChange("color", e.target.value)}
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                    placeholder="White"
-                  />
-                </div>
+                <FormInput label="Color" value={editData.color} onChange={(v) => setField("color", v)} />
 
                 <div className="flex items-center gap-2 mt-2">
                   <button
                     type="button"
-                    onClick={() =>
-                      handleChange("insurance", !Boolean(editData.insurance))
-                    }
-                    className={`text-[11px] px-3 py-1.5 rounded-full border transition
-                            ${
-                              editData.insurance
-                                ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                                : "bg-gray-50 border-gray-200 text-gray-600"
-                            }`}
+                    onClick={() => setField("insurance", !Boolean(editData.insurance))}
+                    className={`text-[11px] px-3 py-1.5 rounded-full border transition ${editData.insurance ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-gray-50 border-gray-200 text-gray-600"}`}
                   >
                     Insurance: {editData.insurance ? "Yes" : "No"}
                   </button>
-                  <span className="text-[11px] text-gray-400">
-                    Toggle if car has valid insurance
-                  </span>
+                  <span className="text-[11px] text-gray-400">Toggle if car has valid insurance</span>
                 </div>
               </div>
             </div>
 
-            {/* Right column */}
+            {/* Right column: pricing, seller, images manager (remove + set-as-main only) */}
             <div className="space-y-4">
-              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Pricing & Seller
-              </h2>
+              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pricing & Seller</h2>
 
               <div className="space-y-3 text-xs">
                 <div className="grid grid-cols-[2fr,1fr] gap-3">
-                  <div>
-                    <label className="block text-gray-500 mb-1">
-                      Price Amount
-                    </label>
-                    <input
-                      type="number"
-                      value={editData?.price?.amount || ""}
-                      onChange={(e) =>
-                        handlePriceChange("amount", e.target.value)
-                      }
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                      placeholder="550000"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-500 mb-1">Currency</label>
-                    <input
-                      disabled
-                      type="text"
-                      value={editData?.price?.currency || "INR"}
-                      onChange={(e) =>
-                        handlePriceChange("currency", e.target.value)
-                      }
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                      placeholder="INR"
-                    />
-                  </div>
+                  <FormInput label="Price Amount" type="number" value={editData?.price?.amount || ""} onChange={(v) => setPriceField("amount", v)} />
+                  <FormInput label="Currency" value={editData?.price?.currency || "INR"} onChange={(v) => setPriceField("currency", v)} disabled />
                 </div>
 
-                <div className="border-t border-gray-100 pt-3 mt-2" />
+                <hr />
 
+                <FormInput label="Seller Name" value={editData?.seller?.sellerName || ""} onChange={(v) => setSellerField("sellerName", v)} />
+                <FormInput label="Contact" value={editData?.seller?.contact || ""} onChange={(v) => setSellerField("contact", v)} />
+
+                <div className="grid grid-cols-3 gap-3">
+                  <FormInput label="City" value={editData?.seller?.location?.city || ""} onChange={(v) => setSellerLocation("city", v)} />
+                  <FormInput label="Area" value={editData?.seller?.location?.area || ""} onChange={(v) => setSellerLocation("area", v)} />
+                  <FormInput label="Pincode" value={editData?.seller?.location?.pincode || ""} onChange={(v) => setSellerLocation("pincode", v)} />
+                </div>
+
+                <hr />
+
+                {/* Images manager: thumbnails, set-as-main, remove */}
                 <div>
-                  <label className="block text-gray-500 mb-1">
-                    Seller Name
-                  </label>
-                  <input
-                    type="text"
-                    value={editData?.seller?.sellerName || ""}
-                    onChange={(e) =>
-                      handleSellerChange("sellerName", e.target.value)
-                    }
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                    placeholder="Good Choice Car"
-                  />
-                </div>
+                  <label className="block text-gray-500 mb-2 text-xs font-medium">Images</label>
 
-                <div>
-                  <label className="block text-gray-500 mb-1">Contact</label>
-                  <input
-                    type="text"
-                    value={editData?.seller?.contact || ""}
-                    onChange={(e) =>
-                      handleSellerChange("contact", e.target.value)
-                    }
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                    placeholder="+91..."
-                  />
-                </div>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {(editData.images || []).map((src, idx) => (
+                      <div key={idx} className="relative border rounded overflow-hidden">
+                        <img src={src} alt={`img-${idx}`} className="w-full h-20 object-cover" />
+                        {/* Main badge */}
+                        {idx === 0 && (
+                          <div className="absolute top-1 left-1 px-2 py-0.5 rounded bg-white/90 text-[10px] text-gray-800 font-semibold">Main</div>
+                        )}
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-gray-500 mb-1">City</label>
-                    <input
-                      type="text"
-                      value={editData?.seller?.location?.city || ""}
-                      onChange={(e) =>
-                        handleLocationChange("city", e.target.value)
-                      }
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                      placeholder="Motihari"
-                    />
+                        <div className="absolute top-1 right-1 flex flex-col gap-1">
+                          {idx !== 0 && (
+                            <button onClick={() => setAsMain(idx)} className="bg-white/90 text-xs px-2 py-0.5 rounded">Set as Main</button>
+                          )}
+                          <button onClick={() => { if (confirm("Remove this image?")) removeImageAt(idx); }} className="bg-white/90 text-xs px-2 py-0.5 rounded text-red-600">Remove</button>
+                        </div>
+                      </div>
+                    ))}
+                    {!(editData.images && editData.images.length) && (
+                      <div className="col-span-3 text-xs text-gray-400">No images available.</div>
+                    )}
                   </div>
-                  <div>
-                    <label className="block text-gray-500 mb-1">Area</label>
-                    <input
-                      type="text"
-                      value={editData?.seller?.location?.area || ""}
-                      onChange={(e) =>
-                        handleLocationChange("area", e.target.value)
-                      }
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                      placeholder="Bada Bariyarpur"
-                    />
-                  </div>
-                </div>
 
-                <div className="border-t border-gray-100 pt-3 mt-2" />
-
-                <div>
-                  <label className="block text-gray-500 mb-1">
-                    Image URL (1st Image)
-                  </label>
-                  <input
-                    type="text"
-                    value={editData.images?.[0] || ""}
-                    onChange={(e) => handleImageChange(e.target.value)}
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition"
-                    placeholder="https://example.com/car1.jpg"
-                  />
-                  <p className="text-[10px] text-gray-400 mt-1">
-                    Tum multiple images backend se handle kar sakte ho, yaha
-                    preview ke liye sirf pehla URL le raha hun.
-                  </p>
+                  <p className="text-[11px] text-gray-400">Images are managed from backend — here you can remove images or choose which one is the main (first) image.</p>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* bottom mobile actions */}
           <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between md:hidden">
-            <button
-              onClick={handleCancel}
-              disabled={saving}
-              className="text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-100 transition disabled:opacity-60 disabled:cursor-not-allowed"
-            >
+            <button onClick={() => navigate(-1)} disabled={saving} className="text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-100 transition disabled:opacity-60 disabled:cursor-not-allowed">
               Cancel
             </button>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="text-xs font-medium px-4 py-1.5 rounded-full border border-emerald-200 bg-emerald-500 text-white hover:bg-emerald-600 hover:border-emerald-300 active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed"
-            >
+            <button onClick={handleSave} disabled={saving} className="text-xs font-medium px-4 py-1.5 rounded-full border border-emerald-200 bg-emerald-500 text-white hover:bg-emerald-600 active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed">
               {saving ? "Saving..." : "Save Changes"}
             </button>
           </div>
@@ -603,5 +372,39 @@ const PostsEdit = () => {
     </div>
   );
 };
+
+/* ---------- Small UI helpers ---------- */
+
+function FormInput({ label, value, onChange, type = "text", disabled = false, min }) {
+  return (
+    <div>
+      <label className="block text-gray-500 mb-1 text-xs">{label}</label>
+      <input
+        min={min}
+        type={type}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className={`w-full text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition ${disabled ? "bg-gray-50" : "bg-white"}`}
+      />
+    </div>
+  );
+}
+
+function SelectInput({ label, value, onChange, options = [] }) {
+  return (
+    <div>
+      <label className="block text-gray-500 mb-1 text-xs">{label}</label>
+      <select value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="w-full text-xs px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500">
+        <option value="">Select</option>
+        {options.map((o) => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
+function Badge({ text }) {
+  return <span className="px-2 py-0.5 rounded-full bg-white border border-gray-100 text-gray-600 text-[11px]">{text}</span>;
+}
 
 export default PostsEdit;

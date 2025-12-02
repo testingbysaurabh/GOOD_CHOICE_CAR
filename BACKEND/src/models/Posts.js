@@ -69,7 +69,8 @@ const postSchema = new mongoose.Schema({
         contact: { type: String },
         location: {
             city: { type: String, trim: true },
-            area: { type: String, trim: true }
+            area: { type: String, trim: true },
+            pincode: { type: String, trim: true }
         }
     },
 
