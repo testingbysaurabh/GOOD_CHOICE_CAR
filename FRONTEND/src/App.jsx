@@ -26,7 +26,7 @@ const App = () => {
       <Suspense fallback={<div className="p-4 text-center"><PostsSkeleton /></div>}>
         <Routes>
           <Route path='/' element={<Home />} />
-          <Route path='/detailview' element={<DetailView />} />
+         <Route path='/detailview' element={<DetailView />} />
           <Route path='/admin' element={<AdminLogin />} />
           <Route path='/adminSignUp' element={<AdminSignUp />} />
           <Route path='/adminForgetPassword' element={<AdminForgetPass />} />
@@ -36,7 +36,7 @@ const App = () => {
             <Route path='/adminPanel' element={<AdminPanel />} />
             <Route path='/posts' element={<Posts />} />
             <Route path="/postedit/:id" element={<PostsEdit />} />
-            <Route path="/addpost" element={<Addpost/>}/>
+            <Route path="/addpost" element={<Addpost />} />
           </Route>
         </Routes>
       </Suspense>
@@ -45,3 +45,4 @@ const App = () => {
 }
 
 export default App
+

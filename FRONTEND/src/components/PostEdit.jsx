@@ -7,12 +7,7 @@ import { updatePost } from "../utils/store/UserSlice";
 import { EditPostSkeleton } from "./Simmer";
 import { useGlobalContext } from "../utils/context/MyContext";
 
-/**
- * PostsEdit (updated)
- * - Added seller.location.pincode input & payload handling
- * - Only image remove + set-as-main (no add/edit/bulk)
- * - Keeps styling and behavior unchanged
- */
+
 
 const PostsEdit = () => {
   const { id } = useParams();
@@ -138,11 +133,11 @@ const PostsEdit = () => {
       const updated = res.data?.data || payload;
       dispatch(updatePost({ id, data: updated }));
 
-      toast.success("Post updated successfully ✅");
+      toast.success("Post updated successfully ");
       navigate(-1);
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.error || "Failed to update post ❌");
+      toast.error(err?.response?.data?.error || "Failed to update post ");
     } finally {
       setSaving(false);
       setIsLoading(false);

@@ -15,12 +15,56 @@ const fs = require("fs").promises;
 //public
 router.get("/all-posts", async (req, res) => {
     try {
-        const allPosts = await Post.find({ Post });
+        const allPosts = await Post.find({});
         res.status(200).json({ data: allPosts });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
+
+
+// Search suggestions for autocomplete
+router.get('/posts/search/suggestions', async (req, res) => {
+    try {
+        const { q } = req.query;
+
+        if (!q || q.length < 2) {
+            return res.status(200).json({ data: [] });
+        }
+
+        const regex = new RegExp(q, 'i');
+        const limit = parseInt(req.query.limit) || 5;
+
+        const suggestions = await Post.find({
+            $or: [
+                { brand: regex },
+                { model: regex },
+                { variant: regex },
+                { color: regex }
+            ]
+        })
+            .select('brand model variant color price images')
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        // Format suggestions for dropdown
+        const formattedSuggestions = suggestions.map(post => ({
+            _id: post._id,
+            title: `${post.brand} ${post.model}${post.variant ? ` ${post.variant}` : ''}`,
+            brand: post.brand,
+            model: post.model,
+            variant: post.variant,
+            color: post.color,
+            price: post.price,
+            image: post.images?.[0] || null
+        }));
+
+        res.status(200).json({ data: formattedSuggestions });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 
 router.get('/posts/search', async (req, res) => {
@@ -41,7 +85,8 @@ router.get('/posts/search', async (req, res) => {
                 { variant: regex },
                 { color: regex }
             ]
-        });
+        })
+            .sort({ createdAt: -1 });
 
         if (matchedPosts.length === 0) {
             return res.status(404).json({ msg: 'No products found matching the query' });
@@ -69,195 +114,231 @@ router.get("/posts/:id", async (req, res) => {
 
 
 
+router.get("/feed", async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 12;
+        const skip = (page - 1) * limit;
 
-// router.get('/posts/filter', async (req, res) => {
-//     try {
-//         const { minPrice, maxPrice, minYear, maxYear, fuelType, transmission, color } = req.query;
+        // Build filter object
+        const filter = {};
 
-//         const filter = {};
-//         // Price filter (range)
-//         if (minPrice || maxPrice) {
-//             filter['price.amount'] = {};
-//             if (minPrice) filter['price.amount'].$gte = Number(minPrice);
-//             if (maxPrice) filter['price.amount'].$lte = Number(maxPrice);
-//         }
+        // Search query filter
+        if (req.query.q) {
+            const regex = new RegExp(req.query.q, 'i');
+            filter.$or = [
+                { brand: regex },
+                { model: regex },
+                { variant: regex },
+                { color: regex }
+            ];
+        }
 
-//         // Manufacturing year filter (range)
-//         if (minYear || maxYear) {
-//             filter.manufacturingYear = {};
-//             if (minYear) filter.manufacturingYear.$gte = Number(minYear);
-//             if (maxYear) filter.manufacturingYear.$lte = Number(maxYear);
-//         }
+        // Price range filter
+        if (req.query.minPrice || req.query.maxPrice) {
+            filter['price.amount'] = {};
+            if (req.query.minPrice) filter['price.amount'].$gte = Number(req.query.minPrice);
+            if (req.query.maxPrice) filter['price.amount'].$lte = Number(req.query.maxPrice);
+        }
 
-//         // Fuel type filter
-//         if (fuelType) {
-//             filter.fuelType = fuelType;
-//         }
+        // Year range filter (using registrationYear)
+        if (req.query.minYear || req.query.maxYear) {
+            filter.registrationYear = {};
+            if (req.query.minYear) filter.registrationYear.$gte = Number(req.query.minYear);
+            if (req.query.maxYear) filter.registrationYear.$lte = Number(req.query.maxYear);
+        }
 
-//         // Transmission filter
-//         if (transmission) {
-//             filter.transmission = transmission;
-//         }
+        // Fuel type filter
+        if (req.query.fuelType) {
+            filter.fuelType = req.query.fuelType;
+        }
 
-//         // Color filter
-//         if (color) {
-//             filter.color = color;
-//         }
+        // Transmission filter
+        if (req.query.transmission) {
+            filter.transmission = req.query.transmission;
+        }
 
-//         const filteredPosts = await Post.find(filter);
+        // Color filter
+        if (req.query.color) {
+            filter.color = new RegExp(req.query.color, 'i');
+        }
 
-//         if (filteredPosts.length === 0) {
-//             return res.status(404).json({ msg: "No matching posts found" });
-//         }
+        // Build aggregation pipeline
+        // If we have both $or (search) and other filters, combine them with $and
+        let matchFilter = filter;
+        if (filter.$or && Object.keys(filter).length > 1) {
+            const { $or, ...otherFilters } = filter;
+            matchFilter = {
+                $and: [
+                    { $or },
+                    otherFilters
+                ]
+            };
+        }
 
-//         res.status(200).json({ data: filteredPosts });
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//         // http://localhost:8080/api/posts/filter?minPrice=500000&maxPrice=1000000&fuelType=Petrol&transmission=Manual
-//     }
-// });
+        const pipeline = [
+            // Match filter first
+            ...(Object.keys(matchFilter).length > 0 ? [{ $match: matchFilter }] : []),
 
+            // Sort by newest first
+            { $sort: { createdAt: -1 } },
 
+            // Lookup author information from User collection
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "author",
+                    foreignField: "_id",
+                    as: "authorInfo"
+                }
+            },
 
-// router.get('/posts/filter', async (req, res) => {
-//     try {
-//       const {
-//         q,              // search query 
-//         minPrice,
-//         maxPrice,
-//         minYear,
-//         maxYear,
-//         fuelType,
-//         transmission,
-//         color
-//       } = req.query;
+            // Unwind authorInfo array
+            {
+                $unwind: {
+                    path: "$authorInfo",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
 
-//       // Build filter object
-//       const filter = {};
+            // Project only necessary fields
+            {
+                $project: {
+                    brand: 1,
+                    model: 1,
+                    variant: 1,
+                    price: 1,
+                    kilometersDriven: 1,
+                    manufacturingYear: 1,
+                    registrationYear: 1,
+                    owners: 1,
+                    fuelType: 1,
+                    transmission: 1,
+                    color: 1,
+                    seller: 1,
+                    insurance: 1,
+                    images: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    author: {
+                        _id: "$authorInfo._id",
+                        firstName: "$authorInfo.firstName",
+                        lastName: "$authorInfo.lastName",
+                        mail: "$authorInfo.mail"
+                    }
+                }
+            },
 
-//       // Search string ke liye regex match (brand, model, variant, color)
-//       if (q) {
-//         const regex = new RegExp(q, 'i');
-//         filter.$or = [
-//           { brand: regex },
-//           { model: regex },
-//           { variant: regex },
-//           { color: regex }
-//         ];
-//       }
+            // Skip and limit for pagination
+            { $skip: skip },
+            { $limit: limit }
+        ];
 
-//       // Price range filter
-//       if (minPrice || maxPrice) {
-//         filter['price.amount'] = {};
-//         if (minPrice) filter['price.amount'].$gte = Number(minPrice);
-//         if (maxPrice) filter['price.amount'].$lte = Number(maxPrice);
-//       }
+        // Get total count with filters
+        const countPipeline = [
+            ...(Object.keys(matchFilter).length > 0 ? [{ $match: matchFilter }] : []),
+            { $count: "total" }
+        ];
+        const countResult = await Post.aggregate(countPipeline);
+        const totalPosts = countResult.length > 0 ? countResult[0].total : 0;
 
-//       // Year range filter
-//       if (minYear || maxYear) {
-//         filter.manufacturingYear = {};
-//         if (minYear) filter.manufacturingYear.$gte = Number(minYear);
-//         if (maxYear) filter.manufacturingYear.$lte = Number(maxYear);
-//       }
+        const feedPosts = await Post.aggregate(pipeline);
 
-//       // Fuel type filter
-//       if (fuelType) {
-//         filter.fuelType = fuelType;
-//       }
-
-//       // Transmission filter
-//       if (transmission) {
-//         filter.transmission = transmission;
-//       }
-
-//       // Color exact match
-//       if (color) {
-//         filter.color = color;
-//       }
-
-//       const result = await Post.find(filter);
-
-//       if (!result.length) {
-//         return res.status(404).json({ msg: 'No matching posts found' });
-//       }
-
-//       res.status(200).json({ data: result });
-//     } catch (error) {
-//       res.status(500).json({ error: error.message });
-//     //   api/posts/filter?q=scorpio&minPrice=500000&maxPrice=1000000&fuelType=Diesel
-//     }
-//   });
-
-
-
-
-
-
-
-
-
-/////admin
-
-
-
-
-// router.post("/admin/posts/create-post", isLoggedIn, async (req, res) => {
-//     try {
-//         const {
-//             brand,
-//             model,
-//             variant,
-//             price: { amount, currency },
-//             kilometersDriven,
-//             manufacturingYear,
-//             registrationYear,
-//             owners,
-//             fuelType,
-//             transmission,
-//             color,
-//             seller: {
-//                 sellerName,
-//                 contact,
-//                 location: { city, area },
-//             },
-//             insurance,
-//             images,
-//         } = req.body;
-
-//         // Now use these variables to create your Post document
-//         const NewPost = await Post.create({
-//             brand,
-//             model,
-//             variant,
-//             price: { amount, currency },
-//             kilometersDriven,
-//             manufacturingYear,
-//             registrationYear,
-//             owners,
-//             fuelType,
-//             transmission,
-//             color,
-//             seller: {
-//                 sellerName,
-//                 contact,
-//                 location: { city, area },
-//             },
-//             insurance,
-//             images,
-//             author: req.user._id,
-//         });
+        res.status(200).json({
+            success: true,
+            data: feedPosts,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalPosts / limit),
+                totalPosts: totalPosts,
+                hasNextPage: skip + limit < totalPosts,
+                hasPrevPage: page > 1
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 
-//         ///for push  post id in user arry 
-//         req.user.posts.push(NewPost._id)
-//         await req.user.save()
 
 
-//         res.status(201).json({ msg: "Post created", data: NewPost });
-//     } catch (error) {
-//         res.status(400).json({ error: error.message });
-//     }
-// });
+
+
+router.get('/posts/filter', async (req, res) => {
+    try {
+        const {
+            q,              // search query 
+            minPrice,
+            maxPrice,
+            minYear,
+            maxYear,
+            fuelType,
+            transmission,
+            color
+        } = req.query;
+
+        // Build filter object
+        const filter = {};
+
+        // Search string ke liye regex match (brand, model, variant, color)
+        if (q) {
+            const regex = new RegExp(q, 'i');
+            filter.$or = [
+                { brand: regex },
+                { model: regex },
+                { variant: regex },
+                { color: regex }
+            ];
+        }
+
+        // Price range filter
+        if (minPrice || maxPrice) {
+            filter['price.amount'] = {};
+            if (minPrice) filter['price.amount'].$gte = Number(minPrice);
+            if (maxPrice) filter['price.amount'].$lte = Number(maxPrice);
+        }
+
+        // Year range filter
+        if (minYear || maxYear) {
+            filter.manufacturingYear = {};
+            if (minYear) filter.manufacturingYear.$gte = Number(minYear);
+            if (maxYear) filter.manufacturingYear.$lte = Number(maxYear);
+        }
+
+        // Fuel type filter
+        if (fuelType) {
+            filter.fuelType = fuelType;
+        }
+
+        // Transmission filter
+        if (transmission) {
+            filter.transmission = transmission;
+        }
+
+        // Color exact match
+        if (color) {
+            filter.color = color;
+        }
+
+        const result = await Post.find(filter);
+
+        if (!result.length) {
+            return res.status(404).json({ msg: 'No matching posts found' });
+        }
+
+        res.status(200).json({ data: result });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+        //   api/posts/filter?q=scorpio&minPrice=500000&maxPrice=1000000&fuelType=Diesel
+    }
+});
+
+
+
+
+
+
 
 
 
@@ -333,9 +414,8 @@ router.post("/admin/posts/create-post", isLoggedIn, upload.array("images", 10), 
                 },
             },
             insurance: insuranceBool,
-
             images: imageUrls,         // yaha saari Cloudinary URLs ka array
-            author: req.user._id,      // from isLoggedIn middleware
+            author: req.user._id      // from isLoggedIn middleware
         });
 
         //  User ke posts array me push karo
@@ -370,9 +450,6 @@ router.delete("/admin/posts/delete/:id", isLoggedIn, isAuthor, async (req, res) 
         if (postToDelete.images && postToDelete.images.length > 0) {
             const deletePromises = postToDelete.images.map(async (imageUrl) => {
                 try {
-                    // Extract public_id from Cloudinary URL
-                    // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/v{version}/{folder}/{public_id}.{format}
-                    // or: https://res.cloudinary.com/{cloud_name}/image/upload/{folder}/{public_id}.{format}
 
                     // Extract the path after /upload/
                     const uploadIndex = imageUrl.indexOf('/upload/');
