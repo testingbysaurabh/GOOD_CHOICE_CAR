@@ -99,7 +99,7 @@ const DetailView = () => {
     }
 
     return (
-        <div className="absolute min-w-[100%] min-h-[100%] overflow-hidden">
+        <div className="absolute min-w-[100%] min-h-[100%] overflow-hidden top-15">
             <div className="fixed inset-0">
                 <div className="h-99 w-99 bg-[#e8f6fef2] rounded-full absolute top-7 -right-20"></div>
                 <div className="h-99 w-99 bg-[#a695fd3e] rounded-full absolute -bottom-10 -left-20"></div>
@@ -110,9 +110,9 @@ const DetailView = () => {
                 
                 <button
                     onClick={() => navigate(-1)}
-                    className="mt-20 md:mt-5 mb-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors w-fit"
+                    className="flex justify-between items-center gap-3 mt-20 md:mt-5 mb-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors w-fit"
                 >
-                    ← Back
+                    <i class="fa-solid fa-chevron-left"></i> Back
                 </button>
 
                 <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-8">

@@ -67,6 +67,7 @@ router.get('/posts/search/suggestions', async (req, res) => {
 
 
 
+
 router.get('/posts/search', async (req, res) => {
     try {
         const { q } = req.query; // Search query string
