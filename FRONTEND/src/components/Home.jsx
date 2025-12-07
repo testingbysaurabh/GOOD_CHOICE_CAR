@@ -4,23 +4,14 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setPosts,
-  addPosts,
-  setPagination,
-  setFilters,
-  resetFilters,
-  setLoading,
-  resetPosts,
-} from "../utils/store/PublicSlice";
+import { setPosts, addPosts, setPagination, setFilters, resetFilters, setLoading, resetPosts, } from "../utils/store/PublicSlice";
 import defaultimg from "../assets/default.png";
 import trans from "../assets/trans.svg";
 
+
 const Home = () => {
   const dispatch = useDispatch();
-  const { posts, pagination, filters, searchQuery, loading } = useSelector(
-    (state) =>
-      state.publicSlice || {
+  const { posts, pagination, filters, searchQuery, loading } = useSelector((state) =>state.publicSlice || {
         posts: [],
         pagination: {
           currentPage: 1,
@@ -42,6 +33,7 @@ const Home = () => {
         loading: false,
       }
   );
+
   const [showFilters, setShowFilters] = useState(false);
   const [filterValues, setFilterValues] = useState(filters);
   const observerTarget = useRef(null);
@@ -51,13 +43,9 @@ const Home = () => {
     setFilterValues(filters);
   }, [filters]);
 
+
   const fetchPosts = useCallback(
-    async (
-      page = 1,
-      reset = false,
-      currentFilters = filters,
-      currentSearchQuery = searchQuery
-    ) => {
+    async ( page = 1, reset = false, currentFilters = filters, currentSearchQuery = searchQuery) => {
       try {
         dispatch(setLoading(true));
         const params = new URLSearchParams({
@@ -77,10 +65,7 @@ const Home = () => {
           }
         });
 
-        const res = await axios.get(
-          `${import.meta.env.VITE_DOMAIN}/api/feed?${params.toString()}`
-        );
-
+        const res = await axios.get(`${import.meta.env.VITE_DOMAIN}/api/feed?${params.toString()}`);
         if (reset) {
           dispatch(setPosts(res.data.data));
         } else {
@@ -101,7 +86,7 @@ const Home = () => {
     const fetchInitialPosts = async () => {
       try {
         dispatch(setLoading(true));
-        const params = new URLSearchParams({ page: "1", limit: "12",});
+        const params = new URLSearchParams({ page: "1", limit: "12" });
 
         // Add search query if present
         if (searchQuery) {
@@ -115,8 +100,7 @@ const Home = () => {
           }
         });
 
-        const res = await axios.get(
-          `${import.meta.env.VITE_DOMAIN}/api/feed?${params.toString()}`
+        const res = await axios.get( `${import.meta.env.VITE_DOMAIN}/api/feed?${params.toString()}`
         );
         dispatch(setPosts(res.data.data));
         dispatch(setPagination(res.data.pagination));
@@ -152,14 +136,7 @@ const Home = () => {
         observer.unobserve(currentTarget);
       }
     };
-  }, [
-    pagination?.hasNextPage,
-    loading,
-    pagination?.currentPage,
-    fetchPosts,
-    filters,
-    searchQuery,
-  ]);
+  },[ pagination?.hasNextPage, loading, pagination?.currentPage, fetchPosts, filters, searchQuery, ]);
 
   const handleFilterChange = (key, value) => {
     setFilterValues((prev) => ({ ...prev, [key]: value }));
@@ -171,15 +148,7 @@ const Home = () => {
   };
 
   const clearFilters = () => {
-    setFilterValues({
-      minPrice: "",
-      maxPrice: "",
-      minYear: "",
-      maxYear: "",
-      fuelType: "",
-      transmission: "",
-      color: "",
-    });
+    setFilterValues({ minPrice: "", maxPrice: "", minYear: "", maxYear: "", fuelType: "", transmission: "", color: "",});
     dispatch(resetFilters());
     setShowFilters(false);
   };
@@ -198,15 +167,20 @@ const Home = () => {
       >
         <div
           id="fn"
-          
-          className="md:top-2  fixed max-md:w-full md:w-[85vw] shadow-gray-500 max-md:shadow-inner max-md:rounded-t-sm flex flex-col  max-md:z-10 max-md:bottom-0 md:mt-14 md:fixed z-20"
+          className="md:top-4  fixed max-md:w-full md:w-[85vw] shadow-gray-500 max-md:shadow-inner max-md:rounded-t-sm flex flex-col  max-md:z-10 max-md:bottom-0 md:mt-14 md:fixed z-20"
         >
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="px-2 bg-gray-50 opacity-80 text-black rounded-md transition-colors flex justify-between items-center border-gray-200 border "
           >
-            {showFilters ? <i className="fa-solid fa-angle-up text-blue-600"></i> :<i className="fa-solid fa-filter"></i>} 
-            <i className="fa-solid fa-gas-pump"></i><img src={trans} className="h-6 w-6" alt="" /><i className="fa-solid fa-up-down"></i>
+            {showFilters ? (
+              <i className="fa-solid fa-angle-up text-blue-600"></i>
+            ) : (
+              <i className="fa-solid fa-filter"></i>
+            )}
+            <i className="fa-solid fa-gas-pump"></i>
+            <img src={trans} className="h-6 w-6" alt="" />
+            <i className="fa-solid fa-up-down"></i>
           </button>
 
           {showFilters && (
@@ -216,6 +190,7 @@ const Home = () => {
                   Min Price
                 </label>
                 <input
+                  min={1000}
                   type="number"
                   value={filterValues.minPrice}
                   onChange={(e) =>
@@ -230,6 +205,7 @@ const Home = () => {
                   Max Price
                 </label>
                 <input
+                  min={1000}
                   type="number"
                   value={filterValues.maxPrice}
                   onChange={(e) =>
@@ -244,6 +220,7 @@ const Home = () => {
                   Min Year
                 </label>
                 <input
+                  min={1990}
                   type="number"
                   value={filterValues.minYear}
                   onChange={(e) =>
@@ -258,13 +235,14 @@ const Home = () => {
                   Max Year
                 </label>
                 <input
+                  min={1990}
                   type="number"
                   value={filterValues.maxYear}
                   onChange={(e) =>
                     handleFilterChange("maxYear", e.target.value)
                   }
                   placeholder="Max Year"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className=" w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -317,7 +295,7 @@ const Home = () => {
               <div className="flex items-end gap-2">
                 <button
                   onClick={applyFilters}
-                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors w-full"
+                  className="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors w-full"
                 >
                   Apply
                 </button>
@@ -332,10 +310,9 @@ const Home = () => {
           )}
         </div>
 
-
         <div
           id="mainContent"
-          className="md:mt-21 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 pt-1 max-md:mt-15 "
+          className="md:mt-26 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 pt-1 max-md:mt-15 "
         >
           {posts && posts.length > 0
             ? posts.map((items) => {

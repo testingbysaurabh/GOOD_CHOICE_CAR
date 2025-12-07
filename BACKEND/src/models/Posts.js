@@ -34,13 +34,13 @@ const postSchema = new mongoose.Schema({
     },
     manufacturingYear: {
         type: Number,
-        min: 1900,
+        min: 1990,
         max: new Date().getFullYear()
     },
     registrationYear: {
         type: Number,
         required: true,
-        min: 1900,
+        min: 1990,
         max: new Date().getFullYear()
     },
     owners: {
