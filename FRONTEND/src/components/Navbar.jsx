@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -41,8 +41,7 @@ const Navbar = () => {
     const id = setTimeout(async () => {
       try {
         const res = await axios.get(
-          `${
-            import.meta.env.VITE_DOMAIN
+          `${import.meta.env.VITE_DOMAIN
           }/api/posts/search/suggestions?q=${encodeURIComponent(
             searchValue
           )}&limit=5`,
@@ -163,10 +162,10 @@ const Navbar = () => {
     }
   };
 
-  // ------------------- JSX -------------------
+
   return (
-    <nav className="fixed top-0 w-[100vw] rounded flex items-center justify-between p-1.5 sm:p-2 mx-auto shadow-gray-900 shadow-lg max-md:w-full max-md:fixed bg-slate-50 max-md:top-0 z-30">
-      <div id="logo" className="flex items-center min-w-0 flex-shrink-0 gap-1 sm:gap-2" onClick={()=>navigate("/")}>
+    <nav className="fixed top-0 w-full rounded flex items-center justify-between p-1.5 sm:p-2 mx-auto shadow-gray-900 shadow-lg max-md:w-full max-md:fixed bg-slate-50 max-md:top-0 z-30">
+      <div id="logo" className="flex items-center min-w-0 flex-shrink-0 gap-1 sm:gap-2" onClick={() => navigate("/")}>
         <img src={logo} alt="GCC" className="h-7 xs:h-8 sm:h-10 w-auto object-contain" />
         <h1 className="text-[10px] xs:text-xs sm:text-sm md:text-base lg:text-lg font-semibold whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px] xs:max-w-[150px] sm:max-w-none">
           GOOD CHOICE CAR
@@ -289,6 +288,7 @@ const Navbar = () => {
       <a
         href="https://maps.app.goo.gl/K1WkYmiTh5S7yFiG6?g_st=ipc"
         id="area"
+        target="_blank"
         className="hidden md:flex justify-between items-center gap-2 px-2 hover:text-blue-600 transition-colors"
       >
         <i className="fa-solid fa-route"></i>

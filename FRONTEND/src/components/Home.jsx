@@ -7,31 +7,32 @@ import { useDispatch, useSelector } from "react-redux";
 import { setPosts, addPosts, setPagination, setFilters, resetFilters, setLoading, resetPosts, } from "../utils/store/PublicSlice";
 import defaultimg from "../assets/default.png";
 import trans from "../assets/trans.svg";
+import { HomeGridSkeleton } from "./Simmer";
 
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { posts, pagination, filters, searchQuery, loading } = useSelector((state) =>state.publicSlice || {
-        posts: [],
-        pagination: {
-          currentPage: 1,
-          totalPages: 1,
-          totalPosts: 0,
-          hasNextPage: false,
-          hasPrevPage: false,
-        },
-        filters: {
-          minPrice: "",
-          maxPrice: "",
-          minYear: "",
-          maxYear: "",
-          fuelType: "",
-          transmission: "",
-          color: "",
-        },
-        searchQuery: "",
-        loading: false,
-      }
+  const { posts, pagination, filters, searchQuery, loading } = useSelector((state) => state.publicSlice || {
+    posts: [],
+    pagination: {
+      currentPage: 1,
+      totalPages: 1,
+      totalPosts: 0,
+      hasNextPage: false,
+      hasPrevPage: false,
+    },
+    filters: {
+      minPrice: "",
+      maxPrice: "",
+      minYear: "",
+      maxYear: "",
+      fuelType: "",
+      transmission: "",
+      color: "",
+    },
+    searchQuery: "",
+    loading: false,
+  }
   );
 
   const [showFilters, setShowFilters] = useState(false);
@@ -47,7 +48,7 @@ const Home = () => {
 
 
   const fetchPosts = useCallback(
-    async ( page = 1, reset = false, currentFilters = filters, currentSearchQuery = searchQuery) => {
+    async (page = 1, reset = false, currentFilters = filters, currentSearchQuery = searchQuery) => {
       try {
         dispatch(setLoading(true));
         const params = new URLSearchParams({
@@ -102,7 +103,7 @@ const Home = () => {
           }
         });
 
-        const res = await axios.get( `${import.meta.env.VITE_DOMAIN}/api/feed?${params.toString()}`
+        const res = await axios.get(`${import.meta.env.VITE_DOMAIN}/api/feed?${params.toString()}`
         );
         dispatch(setPosts(res.data.data));
         dispatch(setPagination(res.data.pagination));
@@ -138,59 +139,53 @@ const Home = () => {
         observer.unobserve(currentTarget);
       }
     };
-  },[ pagination?.hasNextPage, loading, pagination?.currentPage, fetchPosts, filters, searchQuery, ]);
+  }, [pagination?.hasNextPage, loading, pagination?.currentPage, fetchPosts, filters, searchQuery,]);
 
-  // const handleFilterChange = (key, value) => {
-  //   setFilterValues((prev) => ({ ...prev, [key]: value }));
-  // };
 
   const handleFilterChange = (key, value) => {
-  setFilterValues((prev) => {
-    const updated = { ...prev, [key]: value };
+    setFilterValues((prev) => {
+      const updated = { ...prev, [key]: value };
 
-    const minY = parseInt(updated.minYear);
-    const maxY = parseInt(updated.maxYear);
+      const minY = parseInt(updated.minYear);
+      const maxY = parseInt(updated.maxYear);
 
-    // Reset error
-    setYearError("");
+      // Reset error
+      setYearError("");
 
-    // Validate only when year fields change
-    if (key === "minYear" || key === "maxYear") {
-      if (value && value.length !== 4) {
-        setYearError("Year must be exactly 4 digits.");
-      } else if (minY && minY < 1990) {
-        setYearError("Min Year cannot be less than 1990.");
-      } else if (maxY && maxY > 2099) {
-        setYearError("Max Year cannot be greater than 2099.");
-      } else if (minY && maxY && minY > maxY) {
-        setYearError("Min Year cannot be greater than Max Year.");
+      // Validate only when year fields change
+      if (key === "minYear" || key === "maxYear") {
+        if (value && value.length !== 4) {
+          setYearError("Year must be exactly 4 digits.");
+        } else if (minY && minY < 1990) {
+          setYearError("Min Year cannot be less than 1990.");
+        } else if (maxY && maxY > 2099) {
+          setYearError("Max Year cannot be greater than 2099.");
+        } else if (minY && maxY && minY > maxY) {
+          setYearError("Min Year cannot be greater than Max Year.");
+        }
       }
+
+      return updated;
+    });
+  };
+
+
+
+  const applyFilters = () => {
+    if (yearError) {
+      toast.error("Please fix the year input before applying filters.");
+      return;
     }
 
-    return updated;
-  });
-};
-
-
-  // const applyFilters = () => {
-  //   dispatch(setFilters(filterValues));
-  //   setShowFilters(false);
-  // };
-const applyFilters = () => {
-  if (yearError) {
-    toast.error("Please fix the year input before applying filters.");
-    return;
-  }
-
-  dispatch(setFilters(filterValues));
-  setShowFilters(false);
-};
+    dispatch(setFilters(filterValues));
+    setShowFilters(false);
+  };
 
 
 
 
   const clearFilters = () => {
-    setFilterValues({ minPrice: "", maxPrice: "", minYear: "", maxYear: "", fuelType: "", transmission: "", color: "",});
+    setFilterValues({ minPrice: "", maxPrice: "", minYear: "", maxYear: "", fuelType: "", transmission: "", color: "", });
     dispatch(resetFilters());
     setShowFilters(false);
   };
@@ -270,7 +265,7 @@ const applyFilters = () => {
                   }
                   placeholder="Min Year"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />{yearError && ( <p className="text-red-500 text-xs mt-1">{yearError}</p> )}
+                />{yearError && (<p className="text-red-500 text-xs mt-1">{yearError}</p>)}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -285,7 +280,7 @@ const applyFilters = () => {
                   }
                   placeholder="Max Year"
                   className=" w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />{yearError && ( <p className="text-red-500 text-xs mt-1">{yearError}</p> )}
+                />{yearError && (<p className="text-red-500 text-xs mt-1">{yearError}</p>)}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -356,21 +351,19 @@ const applyFilters = () => {
           id="mainContent"
           className="md:mt-26 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 pt-1 max-md:mt-15 "
         >
-          {posts && posts.length > 0
-            ? posts.map((items) => {
-                return <CarCard key={items._id} car={items} />;
-              })
-            : !loading && (
-                <p className="col-span-full text-center text-gray-500 py-8">
-                  No Data Found
-                </p>
-              )}
+          {loading && posts.length === 0 && <HomeGridSkeleton count={12} />}
 
-          {loading && (
-            <div className="col-span-full text-center text-gray-500 py-4">
-              Loading...
-            </div>
+          {posts && posts.length > 0 &&
+            posts.map((item) => (
+              <CarCard key={item._id} car={item} />
+            ))}
+
+          {!loading && posts.length === 0 && (
+            <p className="col-span-full text-center text-gray-500 py-8">
+              No Data Found
+            </p>
           )}
+
 
           <div ref={observerTarget} className="h-10"></div>
         </div>
