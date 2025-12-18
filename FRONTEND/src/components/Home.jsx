@@ -8,7 +8,7 @@ import { setPosts, addPosts, setPagination, setFilters, resetFilters, setLoading
 import defaultimg from "../assets/default.png";
 import trans from "../assets/trans.svg";
 import { HomeGridSkeleton } from "./Simmer";
-
+import Nocarfound from "../assets/Nocarfound.png"
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -359,9 +359,12 @@ const Home = () => {
             ))}
 
           {!loading && posts.length === 0 && (
-            <p className="col-span-full text-center text-gray-500 py-8">
-              No Data Found
-            </p>
+            <div className="col-span-full flex flex-col items-center justify-center p-8">
+              <p className="text-center text-gray-500 text-lg mb-4">
+                No Data Found
+              </p>
+              <img className="w-[70%] max-md:w-[100vw] mt-20 rounded-full h-full object-contain" src={Nocarfound} alt="Nocarfound" />
+            </div>
           )}
 
 

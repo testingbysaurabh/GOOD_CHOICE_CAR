@@ -5,12 +5,14 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { removePost } from "../utils/store/UserSlice";
 import { useNavigate } from "react-router-dom";
+import { PostsSkeleton } from "./Simmer";
 
 const Posts = () => {
   const userData = useSelector((store) => store.User.posts);
   const [deletingId, setDeletingId] = useState(null);
   const [editId, setEditId] = useState(null);
   const [imageIndexes, setImageIndexes] = useState({});
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const posts = useSelector((s) => s.User?.posts || []);
@@ -58,6 +60,13 @@ const Posts = () => {
       left: 0,
       behavior: "instant",
     });
+
+    // Simulate initial load - set loading false after checking posts
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Image navigator
@@ -85,6 +94,15 @@ const Posts = () => {
     const safeIdx = Math.max(0, Math.min(idx, imgs.length - 1));
     return imgs[safeIdx];
   };
+
+  if (loading) {
+    return (
+      <div>
+        <AdminPanel />
+        <PostsSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -230,11 +248,10 @@ const Posts = () => {
                       type="button"
                       disabled={deletingId === item._id}
                       className={`text-xs font-medium px-3 py-1.5 rounded-full transition-all border active:scale-[0.97]
-                                            ${
-                                              deletingId === item._id
-                                                ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed opacity-70"
-                                                : "bg-red-50 border-red-100 text-red-600 hover:bg-red-100 hover:border-red-200 cursor-pointer"
-                                            }`}
+                                            ${deletingId === item._id
+                          ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed opacity-70"
+                          : "bg-red-50 border-red-100 text-red-600 hover:bg-red-100 hover:border-red-200 cursor-pointer"
+                        }`}
                     >
                       {deletingId === item._id ? "Deleting..." : "Delete"}
                     </button>
@@ -244,11 +261,10 @@ const Posts = () => {
                       type="button"
                       disabled={editId === item._id}
                       className={`text-xs font-medium px-3 py-1.5 rounded-full transition-all border active:scale-[0.97]
-                                                       ${
-                                                         editId === item._id
-                                                           ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed opacity-70"
-                                                           : "bg-red-50 border-red-100 text-red-600 hover:bg-red-100 hover:border-red-200 cursor-pointer"
-                                                       }`}
+                                                       ${editId === item._id
+                          ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed opacity-70"
+                          : "bg-red-50 border-red-100 text-red-600 hover:bg-red-100 hover:border-red-200 cursor-pointer"
+                        }`}
                     >
                       {editId === item._id ? "Editing..." : "Edit"}
                     </button>
@@ -263,7 +279,7 @@ const Posts = () => {
           </p>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 

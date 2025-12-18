@@ -4,6 +4,8 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useSelector } from 'react-redux'
 import Navbar from './Navbar'
+import { DetailSkeleton } from './Simmer'
+import Nocarfound from "../assets/Nocarfound.png"
 
 
 const DetailView = () => {
@@ -15,8 +17,6 @@ const DetailView = () => {
     const [loading, setLoading] = useState(true)
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const postUrl = `${window.location.origin}/detail?id=${id}`;
-
-
 
 
 
@@ -45,17 +45,7 @@ const DetailView = () => {
     }, [id, posts])
 
     if (loading) {
-        return (
-            <div className="absolute min-w-[100%] min-h-[100%] overflow-hidden">
-                <div className="fixed inset-0">
-                    <div className="h-99 w-99 bg-[#e8f6fef2] rounded-full absolute top-7 -right-20"></div>
-                    <div className="h-99 w-99 bg-[#a695fd3e] rounded-full absolute -bottom-10 -left-20"></div>
-                </div>
-                <div className='w-[85vw] min-h-screen flex items-center justify-center mx-auto relative max-md:w-[100vw]'>
-
-                </div>
-            </div>
-        )
+        return <DetailSkeleton />
     }
 
     if (!data) {
@@ -66,7 +56,9 @@ const DetailView = () => {
                     <div className="h-99 w-99 bg-[#a695fd3e] rounded-full absolute -bottom-10 -left-20"></div>
                 </div>
                 <div className='w-[85vw] min-h-screen flex items-center justify-center mx-auto relative max-md:w-[100vw]'>
-                    <div className="text-center text-gray-600">Car not found</div>
+                    {/* <div className="text-center text-gray-600">Car not found</div> */}
+                    <img className="w-[70%] max-md:w-[100vw] rounded-full h-full object-contain" src={Nocarfound} alt="Nocarfound" />
+
                 </div>
             </div>
         )

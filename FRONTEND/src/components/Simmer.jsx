@@ -5,62 +5,60 @@ import React from "react";
 
 
 export const SendOtpSkeleton = () => {
-    return (
-        <div className="text-center space-y-6">
-            {/* Title Skeleton */}
-            <div className="h-10 w-2/3 mx-auto bg-[#393E46] rounded-lg animate-pulse"></div>
+  return (
+    <div className="text-center space-y-6">
+      {/* Title Skeleton */}
+      <div className="h-10 w-2/3 mx-auto bg-[#393E46] rounded-lg animate-pulse"></div>
 
-            {/* Input Skeleton */}
-            <div className="h-12 w-full rounded-xl bg-[#222831] animate-pulse shadow-inner"></div>
+      {/* Input Skeleton */}
+      <div className="h-12 w-full rounded-xl bg-[#222831] animate-pulse shadow-inner"></div>
 
-            {/* Button Skeleton */}
-            <div className="h-12 w-full rounded-xl bg-[#948979] animate-pulse shadow-lg"></div>
-        </div>
-    );
+      {/* Button Skeleton */}
+      <div className="h-12 w-full rounded-xl bg-[#948979] animate-pulse shadow-lg"></div>
+    </div>
+  );
 };
 
 
 
 
 export const VerifyOtpSkeleton = () => {
-    return (
-        <div className="text-center space-y-6">
-            {/* Title skeleton */}
-            <div className="h-10 w-2/3 mx-auto bg-[#393E46] rounded-lg animate-pulse"></div>
+  return (
+    <div className="text-center space-y-6">
+      {/* Title skeleton */}
+      <div className="h-10 w-2/3 mx-auto bg-[#393E46] rounded-lg animate-pulse"></div>
 
-            {/* Input skeleton */}
-            <div className="h-12 w-full rounded-xl bg-[#222831] animate-pulse shadow-inner"></div>
+      {/* Input skeleton */}
+      <div className="h-12 w-full rounded-xl bg-[#222831] animate-pulse shadow-inner"></div>
 
-            {/* Button skeleton */}
-            <div className="h-12 w-full rounded-xl bg-[#948979] animate-pulse shadow-lg"></div>
-        </div>
-    );
+      {/* Button skeleton */}
+      <div className="h-12 w-full rounded-xl bg-[#948979] animate-pulse shadow-lg"></div>
+    </div>
+  );
 };
 
 
 
-
-
 export const SignupSkeleton = () => {
-    return (
-        <div className="space-y-6">
-            {/* Title Skeleton */}
-            <div className="h-10 w-2/3 mx-auto bg-[#393E46] rounded-lg animate-pulse"></div>
+  return (
+    <div className="space-y-6">
+      {/* Title Skeleton */}
+      <div className="h-10 w-2/3 mx-auto bg-[#393E46] rounded-lg animate-pulse"></div>
 
-            {/* Input Fields Skeleton */}
-            <div className="space-y-3">
-                {[...Array(6)].map((_, i) => (
-                    <div
-                        key={i}
-                        className="h-12 w-full rounded-xl bg-[#222831] animate-pulse shadow-inner"
-                    ></div>
-                ))}
-            </div>
+      {/* Input Fields Skeleton */}
+      <div className="space-y-3">
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className="h-12 w-full rounded-xl bg-[#222831] animate-pulse shadow-inner"
+          ></div>
+        ))}
+      </div>
 
-            {/* Button Skeleton */}
-            <div className="h-12 w-full rounded-xl bg-[#948979] animate-pulse shadow-lg"></div>
-        </div>
-    );
+      {/* Button Skeleton */}
+      <div className="h-12 w-full rounded-xl bg-[#948979] animate-pulse shadow-lg"></div>
+    </div>
+  );
 };
 
 
@@ -93,56 +91,56 @@ export const PasswordChangeSkeleton = () => {
 
 
 export const LoginSkeleton = () => {
-    return (
-        <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: "#222831" }}>
-            <div
-                className="w-[90%] max-w-md p-8 rounded-2xl shadow-2xl animate-pulse"
-                style={{ backgroundColor: "#393E46" }}
-            >
-                {/* Heading */}
-                <div className="text-center mb-6">
-                    <div className="h-6 w-3/4 mx-auto rounded-lg" style={{ backgroundColor: "#948979" }}></div>
-                    <div className="h-4 w-1/2 mx-auto mt-3 rounded-lg" style={{ backgroundColor: "#948979" }}></div>
-                </div>
-
-                {/* Email Field */}
-                <div className="mb-6">
-                    <div className="h-4 w-1/3 mb-2 rounded-lg" style={{ backgroundColor: "#948979" }}></div>
-                    <div
-                        className="h-10 w-full rounded-xl shadow-inner"
-                        style={{
-                            backgroundColor: "#222831",
-                            border: "1px solid #948979",
-                        }}
-                    ></div>
-                </div>
-
-                {/* Password Field */}
-                <div className="mb-6">
-                    <div className="h-4 w-1/3 mb-2 rounded-lg" style={{ backgroundColor: "#948979" }}></div>
-                    <div
-                        className="h-10 w-full rounded-xl shadow-inner"
-                        style={{
-                            backgroundColor: "#222831",
-                            border: "1px solid #948979",
-                        }}
-                    ></div>
-                </div>
-
-                {/* Button */}
-                <div
-                    className="h-10 w-full rounded-xl shadow-md"
-                    style={{ backgroundColor: "#948979" }}
-                ></div>
-
-                {/* Bottom Links */}
-                <div className="flex justify-between mt-6">
-                    <div className="h-3 w-1/2 rounded-lg" style={{ backgroundColor: "#948979" }}></div>
-                    <div className="h-3 w-1/4 rounded-lg" style={{ backgroundColor: "#948979" }}></div>
-                </div>
-            </div>
+  return (
+    <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: "#222831" }}>
+      <div
+        className="w-[90%] max-w-md p-8 rounded-2xl shadow-2xl animate-pulse"
+        style={{ backgroundColor: "#393E46" }}
+      >
+        {/* Heading */}
+        <div className="text-center mb-6">
+          <div className="h-6 w-3/4 mx-auto rounded-lg" style={{ backgroundColor: "#948979" }}></div>
+          <div className="h-4 w-1/2 mx-auto mt-3 rounded-lg" style={{ backgroundColor: "#948979" }}></div>
         </div>
-    );
+
+        {/* Email Field */}
+        <div className="mb-6">
+          <div className="h-4 w-1/3 mb-2 rounded-lg" style={{ backgroundColor: "#948979" }}></div>
+          <div
+            className="h-10 w-full rounded-xl shadow-inner"
+            style={{
+              backgroundColor: "#222831",
+              border: "1px solid #948979",
+            }}
+          ></div>
+        </div>
+
+        {/* Password Field */}
+        <div className="mb-6">
+          <div className="h-4 w-1/3 mb-2 rounded-lg" style={{ backgroundColor: "#948979" }}></div>
+          <div
+            className="h-10 w-full rounded-xl shadow-inner"
+            style={{
+              backgroundColor: "#222831",
+              border: "1px solid #948979",
+            }}
+          ></div>
+        </div>
+
+        {/* Button */}
+        <div
+          className="h-10 w-full rounded-xl shadow-md"
+          style={{ backgroundColor: "#948979" }}
+        ></div>
+
+        {/* Bottom Links */}
+        <div className="flex justify-between mt-6">
+          <div className="h-3 w-1/2 rounded-lg" style={{ backgroundColor: "#948979" }}></div>
+          <div className="h-3 w-1/4 rounded-lg" style={{ backgroundColor: "#948979" }}></div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 
@@ -190,7 +188,7 @@ export const PostsSkeleton = () => {
 export const EditPostSkeleton = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      
+
       {/* Top bar */}
       <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-3 sm:px-6 py-3 flex items-center justify-between animate-pulse">
         <div className="flex items-center gap-2">
@@ -206,7 +204,7 @@ export const EditPostSkeleton = () => {
       {/* Main card */}
       <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-6 mt-6 mb-10">
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          
+
           {/* Image + summary */}
           <div className="grid grid-cols-1 md:grid-cols-[1.7fr,1.3fr]">
             <div className="h-56 sm:h-64 bg-gray-200 animate-pulse" />
@@ -316,7 +314,7 @@ export const DetailSkeleton = () => {
   );
 };
 
-export default DetailSkeleton;
+
 
 
 
@@ -331,13 +329,13 @@ const Skeleton = ({ className }) => (
 export const CarCardSkeleton = () => {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden w-full">
-      
+
       {/* Image */}
       <Skeleton className="w-full h-40 xs:h-48 sm:h-52 md:h-56" />
 
       {/* Content */}
       <div className="px-3 sm:px-4 pt-3 pb-4 space-y-3">
-        
+
         {/* Title */}
         <Skeleton className="h-4 w-3/4" />
 
