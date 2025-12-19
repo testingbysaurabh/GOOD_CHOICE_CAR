@@ -17,7 +17,7 @@ const Posts = lazy(() => import("./components/Posts"))
 const PostsEdit = lazy(() => import("./components/PostEdit"))
 const Addpost = lazy(() => import("./components/Addpost"))
 const DetailView = lazy(() => import("./components/DetailView"))
-
+const Accounts = lazy(() => import("./components/Accounts"))
 
 const App = () => {
   return (
@@ -37,6 +37,7 @@ const App = () => {
             <Route path='/posts' element={<Posts />} />
             <Route path="/postedit/:id" element={<PostsEdit />} />
             <Route path="/addpost" element={<Addpost />} />
+            <Route path="/accounts" element={<Accounts />} />
           </Route>
         </Routes>
       </Suspense>

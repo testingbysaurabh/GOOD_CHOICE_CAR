@@ -87,6 +87,7 @@ const DetailView = () => {
     const phone = seller?.contact || '';
 
 
+
     const formattedPrice = price?.amount ? price.amount.toLocaleString("en-IN") : "—"
     const kmText = kilometersDriven ? `${kilometersDriven.toLocaleString("en-IN")} km` : "—"
 
@@ -176,6 +177,7 @@ const DetailView = () => {
                                 </div>
                             </>
                         )}
+                        
 
                         {/* Image thumbnails */}
                         {images.length > 1 && (

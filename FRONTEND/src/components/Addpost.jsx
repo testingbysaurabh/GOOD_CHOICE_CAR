@@ -25,6 +25,8 @@ const AddPost = () => {
     insurance: true,
   });
 
+  
+
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [message, setMessage] = useState(null);

@@ -9,6 +9,8 @@ import { useGlobalContext } from "../utils/context/MyContext";
 
 
 
+
+
 const PostsEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();

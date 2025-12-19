@@ -100,7 +100,7 @@ export const LeftSidebar = () => {
                     { link: "/posts", icon: "fa-border-none", label: "Active Posts" },
                     { link: "/addpost", icon: "fa-plus", label: "Add Posts" },
                     { link: "/", icon: "fa-people-carry-box", label: "Enquiry" },
-                    { link: "/", icon: "fa-user", label: "Accounts" },
+                    { link: "/accounts", icon: "fa-user", label: "Accounts" },
                     { link: "/", icon: "fa-gear", label: "Settings" },
                 ].map(({ link, icon, label, type }, i) => (
                     <NavLink

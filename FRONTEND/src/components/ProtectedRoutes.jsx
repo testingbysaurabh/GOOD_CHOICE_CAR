@@ -27,7 +27,6 @@ const ProtectedRoutes = () => {
             }
         } getData()
     }, [])
-
     return !userData?.mail ? <LoginSkeleton /> : <Outlet />
 };
 

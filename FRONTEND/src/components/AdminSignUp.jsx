@@ -7,9 +7,6 @@ import { SendOtpSkeleton, SignupSkeleton, VerifyOtpSkeleton, } from "./Simmer";
 import { useNavigate } from "react-router-dom";
 
 
-
-
-
 const AdminSignUp = () => {
     const { ui } = useGlobalContext();
 

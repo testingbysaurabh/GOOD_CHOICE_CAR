@@ -114,7 +114,7 @@ const AdminLogin = () => {
                 </button>
                 <div className="flex justify-between mt-4 text-sm">
                     <span className="cursor-pointer " style={{ color: "#948979" }}>
-                        Don’t have an account? <span onClick={() => nav("/adminSignUp")} className='text-blue-500 hover:underline'>Sign up</span>
+                        Don’t have an account?  <span onClick={() => nav("/adminSignUp")} className='text-blue-500 hover:underline'>Sign up</span>
                     </span>
                     <span onClick={() => nav("/adminForgetPassword")} className="cursor-pointer hover:underline" style={{ color: "#948979" }}>
                         Forgot password?
