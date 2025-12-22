@@ -10,6 +10,8 @@ import trans from "../assets/trans.svg";
 import { HomeGridSkeleton } from "./Simmer";
 import Nocarfound from "../assets/Nocarfound.png"
 
+
+
 const Home = () => {
   const dispatch = useDispatch();
   const { posts, pagination, filters, searchQuery, loading } = useSelector((state) => state.publicSlice || {
