@@ -9,6 +9,7 @@ import { PostsSkeleton } from './components/Simmer';
 // import Test from './components/Test';
 
 
+
 // const AdminPanel = lazy(() => import('./components/AdminPanel'))
 const AdminSignUp = lazy(() => import('./components/AdminSignUp'))
 const AdminForgetPass = lazy(() => import('./components/AdminForgetPass').then(module => ({ default: module.AdminForgetPass })))
