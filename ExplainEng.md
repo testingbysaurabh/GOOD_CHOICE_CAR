@@ -5,6 +5,7 @@
 
 The main focus of this project is on **CRUD Operations**, **Authentication**, and **Image Handling**.
 
+
 ---
 
 ## 🛠 Tech Stack Used
