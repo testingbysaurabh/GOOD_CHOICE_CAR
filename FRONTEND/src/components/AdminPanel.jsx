@@ -1,4 +1,4 @@
-import { useGlobalContext } from "../utils/context/MyContext";
+// import { useGlobalContext } from "../utils/context/MyContext";
 import logo from "../assets/logo2.png";
 import { useSelector } from "react-redux";
 import axios from "axios";
@@ -140,14 +140,14 @@ export const AdminPanel = () => {
             <div className="fixed inset-0  ">
                 <div className="h-99 w-99 bg-[#e8f6fef2] rounded-full absolute top-7 -right-20  "></div>
                 <div className="h-99 w-99 bg-[#a695fd3e] rounded-full absolute -bottom-10 -left-20  "></div>
-                {/* <div className="h-99 w-99 bg-[#e8f6fea7] rounded-full absolute top-7 -right-20  "></div>
-                <div className="h-99 w-99 bg-[#a695fd20] rounded-full absolute -bottom-10 -left-20  "></div> */}
             </div>
             <div >
                 <div className="flex justify-between">
                     <LeftSidebar />
-
                 </div>
+            </div>
+            <div className="relative mt-18 ml-25 mr-8 border p-1 h-[90vh] overflow-y-scroll ">
+                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Similique maiores aliquam, repellendus suscipit ducimus corrupti ea voluptates possimus fuga cum iusto beatae ratione asperiores culpa reprehenderit assumenda. Illum ea eum vel nesciunt sed nisi ipsum, nostrum hic ipsam esse minus voluptatibus in eius officiis, nobis sit veniam atque delectus, assumenda sapiente. Nesciunt consectetur quo quisquam. Odit nemo iste ratione pariatur ab quis, vel quam qui, illum veniam delectus? Obcaecati asperiores, distinctio a laborum ea sit. Minus quidem, voluptatibus architecto eius, debitis beatae fugit excepturi ratione a iste enim obcaecati recusandae corrupti, magni dolorum inventore. Inventore obcaecati vitae aspernatur ratione alias voluptas autem fugit soluta adipisci sed, amet facere, similique velit quibusdam iste maiores sequi voluptatibus eum quas magni non in? Totam ducimus animi quasi, repudiandae magni commodi quisquam nulla delectus sint aut. Quos repellat veritatis eligendi corrupti quo natus recusandae dignissimos esse sed hic, tempore doloremque et rem ipsa, illum illo itaque suscipit minima vitae excepturi quibusdam dolorum! Nihil vel, quas, at exercitationem iusto recusandae quae sapiente animi dolores magni saepe praesentium explicabo repellat perferendis quibusdam ex minima quisquam, mollitia temporibus enim hic expedita incidunt nisi officiis. Voluptatem, exercitationem? Voluptates architecto veritatis odio pariatur corporis fugiat velit deleniti aspernatur commodi eius explicabo molestias nulla doloremque at id minima rem consequatur laborum suscipit recusandae voluptatibus impedit illum, nam quisquam. Nam praesentium deserunt hic ea id doloribus minima, aspernatur labore laboriosam, veniam, ipsam rerum vitae totam.
             </div>
         </div>
     );
