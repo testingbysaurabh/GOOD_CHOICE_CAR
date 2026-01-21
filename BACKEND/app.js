@@ -12,6 +12,7 @@ const { PostRoutes } = require("./src/routes/PostRoutes")
 
 
 
+
 // Middleware
 app.use(cors({
     origin: process.env.ORIGIN,
