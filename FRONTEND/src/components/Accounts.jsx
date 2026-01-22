@@ -6,6 +6,7 @@ import axios from 'axios'
 import validator from 'validator'
 import toast from 'react-hot-toast'
 
+
 const Accounts = () => {
   const userData = useSelector((store) => store.User)
 
